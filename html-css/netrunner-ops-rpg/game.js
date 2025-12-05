@@ -33,8 +33,8 @@ let keys = {};
 // Player & game state
 const gameState = {
   player: {
-    x: 2 * TILE_SIZE,
-    y: 2 * TILE_SIZE,
+    x: 7 * TILE_SIZE,    // center column
+    y: 8 * TILE_SIZE,    // lobby row
     width: TILE_SIZE - 4,
     height: TILE_SIZE - 4,
     speed: 2,
@@ -75,29 +75,26 @@ function randomBetween(min, max) {
 // ---------- Drawing ----------
 
 function drawTile(x, y, tile) {
-  // tile 0 = floor, tile 1 = wall
-  if (sprites.tiles.complete && sprites.tiles.naturalWidth) {
-    const tileCount = 2; // floor + wall
-    const srcTileWidth = sprites.tiles.naturalWidth / tileCount;
-    const srcTileHeight = sprites.tiles.naturalHeight; // one row
-    const sx = tile === 1 ? srcTileWidth : 0;
-    const sy = 0;
-
-    ctx.drawImage(
-      sprites.tiles,
-      sx,
-      sy,
-      srcTileWidth,
-      srcTileHeight,
-      x,
-      y,
-      TILE_SIZE,
-      TILE_SIZE
-    );
-  } else {
-    // fallback while image not loaded
-    ctx.fillStyle = tile === 1 ? "#111827" : "#1f2937";
+  if (tile === 1) {
+    // WALL
+    const grd = ctx.createLinearGradient(x, y, x, y + TILE_SIZE);
+    grd.addColorStop(0, "#020617");
+    grd.addColorStop(1, "#0b1120");
+    ctx.fillStyle = grd;
     ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+
+    ctx.strokeStyle = "rgba(15,23,42,0.9)";
+    ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
+  } else {
+    // FLOOR
+    const grd = ctx.createLinearGradient(x, y, x + TILE_SIZE, y + TILE_SIZE);
+    grd.addColorStop(0, "#111827");
+    grd.addColorStop(1, "#1f2937");
+    ctx.fillStyle = grd;
+    ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+
+    ctx.strokeStyle = "rgba(31,41,55,0.6)";
+    ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
   }
 }
 
@@ -167,8 +164,28 @@ function drawObjects() {
 
 function drawPlayer() {
   const p = gameState.player;
-  ctx.fillStyle = p.color;
-  ctx.fillRect(p.x + 4, p.y + 4, p.width, p.height);
+
+  if (sprites.player.complete && sprites.player.naturalWidth) {
+    const sheet = sprites.player;
+    const frameWidth = sheet.naturalWidth / playerSprite.cols;  // 3 columns
+    const frameHeight = sheet.naturalHeight / playerSprite.rows; // 4 rows
+
+    ctx.drawImage(
+      sheet,
+      playerSprite.frameX * frameWidth,   // src x
+      playerSprite.frameY * frameHeight,  // src y
+      frameWidth,
+      frameHeight,
+      p.x,
+      p.y,
+      p.width,
+      p.height
+    );
+  } else {
+    // fallback while loading
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, p.width, p.height);
+  }
 }
 
 // ---------- Dialogue ----------

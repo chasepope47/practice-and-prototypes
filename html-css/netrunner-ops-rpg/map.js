@@ -9,21 +9,22 @@ const worldMap = [
   // Row 0: top border wall
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 
-  // Room 1: Lobby (rows 1–2)
+  // Room 3 (top): OPS / Hacking room (rows 1–2)
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
 
-  // Row 3: wall separator with door at column 7 (center)
+  // Row 3: wall separator between OPS and ROLE, doors at center (col 7)
   [1,1,1,1,1,1,1,0,1,1,1,1,1,1,1],
 
-  // Room 2: Role / Training room (rows 4–5)
+  // Room 2 (middle): ROLE / Training / Contracts (rows 4–5)
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
 
-  // Row 6: another separator wall with door
-  [1,1,1,1,1,1,1,0,1,1,1,1,1,1,1],
+  // Row 6: wall separator between ROLE and LOBBY,
+  // door near the right of the greeter (col 4)
+  [1,1,1,1,0,1,1,1,1,1,1,1,1,1,1],
 
-  // Room 3: Ops / Contract room (rows 7–8)
+  // Room 1 (bottom): Lobby (rows 7–8)
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
 
@@ -34,26 +35,27 @@ const worldMap = [
 // Interactive objects in the world
 // Coordinates are in pixels, aligned to tiles.
 const objects = [
-  // --- Room 1: Lobby ---
+  // ---------- ROOM 1: LOBBY (bottom) ----------
 
-  // Lobby greeter
+  // Greeter in upper-left of the lobby
   {
     id: "greeter",
     type: "npc",
-    x: 7 * TILE_SIZE,         // roughly center
-    y: 1 * TILE_SIZE,
+    x: 2 * TILE_SIZE,           // near left
+    y: 7 * TILE_SIZE,           // upper part of lobby
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "yellow",
     lines: [
       "Welcome to NetRunner Ops.",
-      "Head down through the door to reach the role hub.",
-      "Then continue to Ops to run full simulations."
+      "↑ Door on my right leads to the Role Hub.",
+      "Choose a role, review training, then take on contracts."
     ]
   },
 
-  // --- Room 2: Role / Training room ---
+  // ---------- ROOM 2: ROLE / TRAINING / CONTRACTS (middle) ----------
 
+  // Three role “terminals” in the center area
   {
     id: "bruteMentor",
     type: "roleNpc",
@@ -100,31 +102,47 @@ const objects = [
     ]
   },
 
-  // --- Room 3: Ops / Contract room ---
-
-  // Contract terminal at top of Ops room
+  // Training terminal on the RIGHT side
   {
-    id: "contractTerminal",
-    type: "terminalContract",
-    x: 7 * TILE_SIZE,
-    y: 7 * TILE_SIZE,
+    id: "trainingTerminal",
+    type: "npc",   // just shows dialogue for now
+    x: 12 * TILE_SIZE,
+    y: 5 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#38bdf8",
     lines: [
-      "Mission Console:",
-      "Accept a training contract to begin a simulation.",
-      "Interact to accept / see mission status."
+      "TRAINING TERMINAL:",
+      "Here you can review how roles, contracts, and ops work.",
+      "In a future update this could walk you through a tutorial mission."
     ]
   },
 
-  // Action terminals laid out below
+  // Contracts area on the LEFT side
+  {
+    id: "contractTerminal",
+    type: "terminalContract",
+    x: 2 * TILE_SIZE,
+    y: 5 * TILE_SIZE,
+    width: TILE_SIZE,
+    height: TILE_SIZE,
+    color: "#38bdf8",
+    lines: [
+      "CONTRACTS CONSOLE:",
+      "Browse and accept training contracts here.",
+      "After accepting, go ↑ through the middle door to the Ops room."
+    ]
+  },
+
+  // ---------- ROOM 3: OPS / HACKING ROOM (top) ----------
+
+  // Action terminals in the OPS room
   {
     id: "reconTerminal",
     type: "terminalAction",
     action: "recon",
     x: 3 * TILE_SIZE,
-    y: 8 * TILE_SIZE,
+    y: 2 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#e5e7eb",
@@ -138,7 +156,7 @@ const objects = [
     type: "terminalAction",
     action: "scan",
     x: 5 * TILE_SIZE,
-    y: 8 * TILE_SIZE,
+    y: 2 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#e5e7eb",
@@ -152,7 +170,7 @@ const objects = [
     type: "terminalAction",
     action: "phish",
     x: 7 * TILE_SIZE,
-    y: 8 * TILE_SIZE,
+    y: 2 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#e5e7eb",
@@ -166,7 +184,7 @@ const objects = [
     type: "terminalAction",
     action: "brute",
     x: 9 * TILE_SIZE,
-    y: 8 * TILE_SIZE,
+    y: 2 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#e5e7eb",
@@ -180,7 +198,7 @@ const objects = [
     type: "terminalAction",
     action: "backdoor",
     x: 11 * TILE_SIZE,
-    y: 8 * TILE_SIZE,
+    y: 2 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#e5e7eb",
@@ -194,7 +212,7 @@ const objects = [
     type: "terminalAction",
     action: "exfiltrate",
     x: 13 * TILE_SIZE,
-    y: 8 * TILE_SIZE,
+    y: 2 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#e5e7eb",
