@@ -5,6 +5,29 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const dialogueBox = document.getElementById("dialogueBox");
 
+// ---- SPRITE ASSETS ----
+const sprites = {
+  tiles: new Image(),
+  player: new Image(),
+  npc: new Image(),
+  terminal: new Image(),
+};
+
+sprites.tiles.src = "assets/tiles.png";
+sprites.player.src = "assets/player.png";
+sprites.npc.src = "assets/npc.png";
+sprites.terminal.src = "assets/terminal.png";
+
+// Player sprite sheet metadata (4 rows x 3 cols)
+const playerSprite = {
+  cols: 3,
+  rows: 4,
+  frameX: 0,          // current column (0–2)
+  frameY: 0,          // current row (0–3)
+  frameTimer: 0,
+  frameInterval: 10,  // lower = faster animation
+};
+
 let keys = {};
 
 // Player & game state
@@ -12,10 +35,10 @@ const gameState = {
   player: {
     x: 2 * TILE_SIZE,
     y: 2 * TILE_SIZE,
-    width: 24,
-    height: 24,
+    width: TILE_SIZE - 4,
+    height: TILE_SIZE - 4,
     speed: 2,
-    color: "#0ff",
+    color: "#0ff", // used only as fallback
   },
   operator: {
     handle: "Operator",
@@ -52,17 +75,29 @@ function randomBetween(min, max) {
 // ---------- Drawing ----------
 
 function drawTile(x, y, tile) {
-  if (tile === 1) {
-    ctx.fillStyle = "#111827";
-  } else {
-    ctx.fillStyle = "#1f2937";
-  }
-  ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+  // tile 0 = floor, tile 1 = wall
+  if (sprites.tiles.complete && sprites.tiles.naturalWidth) {
+    const tileCount = 2; // floor + wall
+    const srcTileWidth = sprites.tiles.naturalWidth / tileCount;
+    const srcTileHeight = sprites.tiles.naturalHeight; // one row
+    const sx = tile === 1 ? srcTileWidth : 0;
+    const sy = 0;
 
-  if (tile === 0) {
-    // slight grid line for vibe
-    ctx.strokeStyle = "rgba(15,23,42,0.8)";
-    ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
+    ctx.drawImage(
+      sprites.tiles,
+      sx,
+      sy,
+      srcTileWidth,
+      srcTileHeight,
+      x,
+      y,
+      TILE_SIZE,
+      TILE_SIZE
+    );
+  } else {
+    // fallback while image not loaded
+    ctx.fillStyle = tile === 1 ? "#111827" : "#1f2937";
+    ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
   }
 }
 
@@ -76,8 +111,57 @@ function drawMap() {
 
 function drawObjects() {
   for (const obj of objects) {
-    ctx.fillStyle = obj.color || "#fbbf24";
-    ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+    if (obj.type === "npc" || obj.type === "roleNpc") {
+      // Use npc.png sheet, pick a single “idle facing down” frame
+      if (sprites.npc.complete && sprites.npc.naturalWidth) {
+        const cols = 3;
+        const rows = 4;
+        const frameWidth = sprites.npc.naturalWidth / cols;
+        const frameHeight = sprites.npc.naturalHeight / rows;
+        const frameX = 1; // middle frame
+        const frameY = 0; // first row = facing down
+
+        ctx.drawImage(
+          sprites.npc,
+          frameX * frameWidth,
+          frameY * frameHeight,
+          frameWidth,
+          frameHeight,
+          obj.x,
+          obj.y,
+          obj.width,
+          obj.height
+        );
+      } else {
+        ctx.fillStyle = obj.color || "#fbbf24";
+        ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+      }
+    } else if (
+      obj.type === "terminalContract" ||
+      obj.type === "terminalAction"
+    ) {
+      // Single-sprite terminal
+      if (sprites.terminal.complete && sprites.terminal.naturalWidth) {
+        ctx.drawImage(
+          sprites.terminal,
+          0,
+          0,
+          sprites.terminal.naturalWidth,
+          sprites.terminal.naturalHeight,
+          obj.x,
+          obj.y,
+          obj.width,
+          obj.height
+        );
+      } else {
+        ctx.fillStyle = obj.color || "#38bdf8";
+        ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+      }
+    } else {
+      // Any other object type, fallback rectangle
+      ctx.fillStyle = obj.color || "#e5e7eb";
+      ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+    }
   }
 }
 
@@ -459,22 +543,56 @@ function handleInteraction(obj) {
   }
 }
 
-// ---------- Update & loop ----------
+// ---------- Update & loop & movement ----------
+function animatePlayer(moving) {
+  if (moving) {
+    playerSprite.frameTimer++;
+    if (playerSprite.frameTimer >= playerSprite.frameInterval) {
+      playerSprite.frameX = (playerSprite.frameX + 1) % playerSprite.cols; // 0–2
+      playerSprite.frameTimer = 0;
+    }
+  } else {
+    // idle = first column in the row
+    playerSprite.frameX = 0;
+    playerSprite.frameTimer = 0;
+  }
+}
 
 function update() {
   const p = gameState.player;
   let newX = p.x;
   let newY = p.y;
+  let moving = false;
 
-  if (keys["ArrowUp"]) newY -= p.speed;
-  if (keys["ArrowDown"]) newY += p.speed;
-  if (keys["ArrowLeft"]) newX -= p.speed;
-  if (keys["ArrowRight"]) newX += p.speed;
+  if (keys["ArrowUp"]) {
+    newY -= p.speed;
+    playerSprite.frameY = 3; // Up row
+    moving = true;
+  }
+  if (keys["ArrowDown"]) {
+    newY += p.speed;
+    playerSprite.frameY = 0; // Down row
+    moving = true;
+  }
+  if (keys["ArrowLeft"]) {
+    newX -= p.speed;
+    playerSprite.frameY = 1; // Left row
+    moving = true;
+  }
+  if (keys["ArrowRight"]) {
+    newX += p.speed;
+    playerSprite.frameY = 2; // Right row
+    moving = true;
+  }
 
+  // Collision-safe movement using your existing canMoveTo()
   if (canMoveTo(newX, p.y)) p.x = newX;
   if (canMoveTo(p.x, newY)) p.y = newY;
+
+  animatePlayer(moving);
 }
 
+// gameLoop can stay basically the same
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawMap();
