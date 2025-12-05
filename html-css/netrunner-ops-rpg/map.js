@@ -6,44 +6,60 @@ const TILE_SIZE = 32;
 // 0 = floor, 1 = wall
 // 15 tiles wide (15 * 32 = 480), 10 tiles high (10 * 32 = 320)
 const worldMap = [
+  // Row 0: top border wall
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+
+  // Room 1: Lobby (rows 1–2)
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+
+  // Row 3: wall separator with door at column 7 (center)
+  [1,1,1,1,1,1,1,0,1,1,1,1,1,1,1],
+
+  // Room 2: Role / Training room (rows 4–5)
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+
+  // Row 6: another separator wall with door
+  [1,1,1,1,1,1,1,0,1,1,1,1,1,1,1],
+
+  // Room 3: Ops / Contract room (rows 7–8)
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+
+  // Row 9: bottom border wall
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 ];
 
 // Interactive objects in the world
 // Coordinates are in pixels, aligned to tiles.
 const objects = [
+  // --- Room 1: Lobby ---
+
   // Lobby greeter
   {
     id: "greeter",
     type: "npc",
-    x: 2 * TILE_SIZE,
-    y: 2 * TILE_SIZE,
+    x: 7 * TILE_SIZE,         // roughly center
+    y: 1 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "yellow",
     lines: [
       "Welcome to NetRunner Ops.",
-      "Walk right to meet the role mentors,",
-      "then head further right to accept a contract."
+      "Head down through the door to reach the role hub.",
+      "Then continue to Ops to run full simulations."
     ]
   },
 
-  // Role mentors
+  // --- Room 2: Role / Training room ---
+
   {
     id: "bruteMentor",
     type: "roleNpc",
     roleKey: "brute",
-    x: 5 * TILE_SIZE,
-    y: 2 * TILE_SIZE,
+    x: 4 * TILE_SIZE,
+    y: 4 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#f97316",
@@ -58,7 +74,7 @@ const objects = [
     type: "roleNpc",
     roleKey: "social",
     x: 7 * TILE_SIZE,
-    y: 2 * TILE_SIZE,
+    y: 4 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#a855f7",
@@ -72,8 +88,8 @@ const objects = [
     id: "analystMentor",
     type: "roleNpc",
     roleKey: "analyst",
-    x: 9 * TILE_SIZE,
-    y: 2 * TILE_SIZE,
+    x: 10 * TILE_SIZE,
+    y: 4 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#22c55e",
@@ -84,12 +100,14 @@ const objects = [
     ]
   },
 
-  // Contract terminal
+  // --- Room 3: Ops / Contract room ---
+
+  // Contract terminal at top of Ops room
   {
     id: "contractTerminal",
     type: "terminalContract",
-    x: 11 * TILE_SIZE,
-    y: 2 * TILE_SIZE,
+    x: 7 * TILE_SIZE,
+    y: 7 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#38bdf8",
@@ -100,13 +118,13 @@ const objects = [
     ]
   },
 
-  // Action terminals (Ops area)
+  // Action terminals laid out below
   {
     id: "reconTerminal",
     type: "terminalAction",
     action: "recon",
-    x: 4 * TILE_SIZE,
-    y: 5 * TILE_SIZE,
+    x: 3 * TILE_SIZE,
+    y: 8 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#e5e7eb",
@@ -119,8 +137,8 @@ const objects = [
     id: "scanTerminal",
     type: "terminalAction",
     action: "scan",
-    x: 6 * TILE_SIZE,
-    y: 5 * TILE_SIZE,
+    x: 5 * TILE_SIZE,
+    y: 8 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#e5e7eb",
@@ -133,8 +151,8 @@ const objects = [
     id: "phishTerminal",
     type: "terminalAction",
     action: "phish",
-    x: 8 * TILE_SIZE,
-    y: 5 * TILE_SIZE,
+    x: 7 * TILE_SIZE,
+    y: 8 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#e5e7eb",
@@ -147,8 +165,8 @@ const objects = [
     id: "bruteTerminal",
     type: "terminalAction",
     action: "brute",
-    x: 10 * TILE_SIZE,
-    y: 5 * TILE_SIZE,
+    x: 9 * TILE_SIZE,
+    y: 8 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#e5e7eb",
@@ -161,8 +179,8 @@ const objects = [
     id: "backdoorTerminal",
     type: "terminalAction",
     action: "backdoor",
-    x: 6 * TILE_SIZE,
-    y: 6 * TILE_SIZE,
+    x: 11 * TILE_SIZE,
+    y: 8 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#e5e7eb",
@@ -175,8 +193,8 @@ const objects = [
     id: "exfilTerminal",
     type: "terminalAction",
     action: "exfiltrate",
-    x: 8 * TILE_SIZE,
-    y: 6 * TILE_SIZE,
+    x: 13 * TILE_SIZE,
+    y: 8 * TILE_SIZE,
     width: TILE_SIZE,
     height: TILE_SIZE,
     color: "#e5e7eb",
