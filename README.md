@@ -25,25 +25,50 @@ The repo is organized to keep languages and experiments easy to find:
 practice-and-prototypes/
 │
 ├── javascript/
-│ ├── basics/
-│ ├── small-projects/
-│ └── experiments/
+│   ├── basics/
+│   ├── small-projects/
+│   └── experiments/
 │
 ├── python/
-│ ├── scripts/
-│ ├── algorithms/
-│ └── prototypes/
+│   ├── scripts/
+│   ├── automation/
+│   └── security-tools/
 │
-├── java/
-│ ├── exercises/
-│ ├── oop-practice/
-│ └── mini-projects/
+├── html-css/
+│   ├── layouts/
+│   └── web-labs/
+│
+├── csharp/
+│   ├── basics/
+│   └── mini-projects/
+│
+├── cpp/
+│   ├── basics/
+│   └── systems-practice/
 │
 ├── powershell/
-│ └── automation-scripts/
+│   ├── admin-scripts/
+│   └── security-labs/
+│
+├── bash/
+│   ├── linux-scripts/
+│   └── cli-practice/
+│
+├── sql/
+│   ├── queries/
+│   └── injection-labs/
+│
+├── networking/
+│   ├── packet-captures-notes/
+│   └── scripts/
+│
+├── security/
+│   ├── ctf-notes/
+│   ├── tooling-prototypes/
+│   └── lab-setups/
 │
 └── misc/
-└── other-languages-or-experiments/
+    └── other-languages-or-experiments/
 ```
   ---
 
