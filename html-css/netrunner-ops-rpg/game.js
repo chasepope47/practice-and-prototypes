@@ -35,6 +35,85 @@ const ROOM_DISPLAY_NAMES = {
   ops: "Operations",
 };
 
+// Techy fade transition state
+const transition = {
+  active: false,
+  phase: "idle",      // "idle" | "fadeOut" | "fadeIn"
+  alpha: 0,
+  targetRoom: null,
+  targetSpawn: null,
+  lines: null,
+};
+
+function startRoomTransition(targetRoom, targetSpawn, lines) {
+  transition.active = true;
+  transition.phase = "fadeOut";
+  transition.alpha = 0;
+  transition.targetRoom = targetRoom;
+  transition.targetSpawn = targetSpawn || null;
+  transition.lines = lines || null;
+}
+
+function updateTransition() {
+  if (!transition.active) return;
+
+  const speed = 0.08; // tweak for faster/slower fade
+
+  if (transition.phase === "fadeOut") {
+    transition.alpha += speed;
+    if (transition.alpha >= 1) {
+      transition.alpha = 1;
+      // swap room when fully dark
+      if (transition.targetRoom) {
+        loadRoom(transition.targetRoom, transition.targetSpawn);
+        // optional: show dialogue AFTER arriving
+        if (transition.lines) {
+          showDialogue(transition.lines);
+        }
+      }
+      transition.phase = "fadeIn";
+    }
+  } else if (transition.phase === "fadeIn") {
+    transition.alpha -= speed;
+    if (transition.alpha <= 0) {
+      transition.alpha = 0;
+      transition.active = false;
+      transition.phase = "idle";
+      transition.targetRoom = null;
+      transition.targetSpawn = null;
+      transition.lines = null;
+    }
+  }
+}
+
+function drawTransitionOverlay() {
+  if (!transition.active || transition.alpha <= 0) return;
+
+  ctx.save();
+
+  // Dark techy background
+  ctx.globalAlpha = transition.alpha * 0.9;
+  ctx.fillStyle = "#020617";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Scanline effect
+  ctx.globalAlpha = transition.alpha * 0.35;
+  ctx.fillStyle = "#0f172a";
+  for (let y = 0; y < canvas.height; y += 4) {
+    ctx.fillRect(0, y, canvas.width, 2);
+  }
+
+  // "TRANSFERRING..." text in the middle when fully in motion
+  ctx.globalAlpha = transition.alpha;
+  ctx.font = "14px monospace";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#22c55e";
+  ctx.fillText("TRANSFERRING...", canvas.width / 2, canvas.height / 2);
+
+  ctx.restore();
+}
+
 function drawHUD() {
   const op = gameState.operator;
   const roomName = ROOM_DISPLAY_NAMES[currentRoomKey] || currentRoomKey;
@@ -649,8 +728,8 @@ function handleContractConsole() {
 function handleInteraction(obj) {
   if (!obj) {
     showDialogue([
-      "No one is close enough to interact.",
-      "Move closer to an NPC or a terminal and press E/Space.",
+      "No one or no door is close enough to interact.",
+      "Move closer and press SPACE.",
     ]);
     return;
   }
@@ -668,15 +747,11 @@ function handleInteraction(obj) {
     // Quick little delay so dialogue is visible; then perform action too
     setTimeout(() => performAction(obj.action), 250);
   } else if (obj.type === "door") {
-    // Doors: change rooms when interacted with
     if (obj.targetRoom) {
-      loadRoom(obj.targetRoom, obj.targetSpawn);
-      if (obj.lines) {
-        showDialogue(obj.lines);
+      startRoomTransition(obj.targetRoom, obj.targetSpawn, obj.lines);
       }
     }
   }
-}
 
 // ---------- Update & loop & movement ----------
 function animatePlayer(moving) {
@@ -694,6 +769,11 @@ function animatePlayer(moving) {
 }
 
 function update() {
+  if (transition.active) {
+    updateTransition();
+    return; // no movement while transitioning
+  }
+  
   const p = gameState.player;
   let newX = p.x;
   let newY = p.y;
@@ -733,7 +813,8 @@ function gameLoop() {
   drawMap();
   drawObjects();
   drawPlayer();
-  drawHUD();     // <-- add this line
+  drawHUD();     
+  drawTransitionOverlay();    // <-- add this line
   update();
   requestAnimationFrame(gameLoop);
 }
@@ -744,10 +825,13 @@ function gameLoop() {
 window.addEventListener("keydown", (e) => {
   keys[e.key] = true;
 
+  if (transition.active) {
+    return; // ignore input during fade
+  }
+
   if (e.key === "e" || e.key === "E" || e.key === " ") {
     e.preventDefault();
     if (gameState.dialogueVisible) {
-      // Close dialogue on E/Space if open
       hideDialogue();
     } else {
       const obj = getNearbyObject();
