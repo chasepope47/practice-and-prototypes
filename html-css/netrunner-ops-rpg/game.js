@@ -15,6 +15,15 @@ const sprites = {
 
 sprites.tiles.src = "assets/tiles.png";
 sprites.player.src = "assets/player.png";
+
+sprites.player.onload = () => {
+  console.log("Player sprite loaded:", sprites.player.naturalWidth, sprites.player.naturalHeight);
+};
+sprites.player.onerror = () => {
+  console.error("FAILED to load player sprite at assets/player.png");
+};
+
+
 sprites.npc.src = "assets/npc.png";
 sprites.terminal.src = "assets/terminal.png";
 
@@ -99,6 +108,11 @@ function drawTile(x, y, tile) {
 }
 
 function drawMap() {
+  // DEBUG: draw raw player sheet in top-left so we know it loads
+if (sprites.player.naturalWidth) {
+  ctx.drawImage(sprites.player, 0, 0, 64, 64, 0, 0, 64, 64);
+}
+
   for (let row = 0; row < worldMap.length; row++) {
     for (let col = 0; col < worldMap[row].length; col++) {
       drawTile(col * TILE_SIZE, row * TILE_SIZE, worldMap[row][col]);
