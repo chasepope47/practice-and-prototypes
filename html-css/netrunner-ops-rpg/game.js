@@ -27,6 +27,19 @@ sprites.player.onerror = () => {
 sprites.npc.src = "assets/npc.png";
 sprites.terminal.src = "assets/terminal.png";
 
+let currentRoomKey = "lobby";
+
+function loadRoom(key, spawnOverride) {
+  currentRoomKey = key;
+  const room = rooms[key];
+  worldMap = room.worldMap;
+  objects = room.objects;
+
+  const spawn = spawnOverride || room.spawn;
+  gameState.player.x = spawn.x;
+  gameState.player.y = spawn.y;
+}
+
 // Player sprite sheet metadata (4 rows x 3 cols)
 const playerSprite = {
   cols: 3,
@@ -246,6 +259,29 @@ function canMoveTo(newX, newY) {
     if (isWallAtPixel(x, y)) return false;
   }
   return true;
+}
+
+function rectsOverlap(ax, ay, aw, ah, bx, by, bw, bh) {
+  return (
+    ax < bx + bw &&
+    ax + aw > bx &&
+    ay < by + bh &&
+    ay + ah > by
+  );
+}
+
+function checkDoorTransition() {
+  const p = gameState.player;
+
+  for (const obj of objects) {
+    if (obj.type === "door") {
+      if (rectsOverlap(p.x, p.y, p.width, p.height, obj.x, obj.y, obj.width, obj.height)) {
+        loadRoom(obj.targetRoom, obj.targetSpawn);
+        if (obj.lines) showDialogue(obj.lines);
+        return; // only handle one door per frame
+      }
+    }
+  }
 }
 
 function getNearbyObject() {
@@ -621,6 +657,7 @@ function update() {
   if (canMoveTo(p.x, newY)) p.y = newY;
 
   animatePlayer(moving);
+  checkDoorTransition();
 }
 
 // gameLoop can stay basically the same
@@ -657,6 +694,8 @@ window.addEventListener("keyup", (e) => {
 // ---------- Init ----------
 
 function init() {
+  loadRoom("lobby");
+  
   showDialogue([
     "NetRunner Ops RPG:",
     "Arrow keys: move",
