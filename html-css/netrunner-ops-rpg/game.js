@@ -166,6 +166,7 @@ const playerSprite = {
   frameY: 0,          // current row (0–3)
   frameTimer: 0,
   frameInterval: 10,  // lower = faster animation
+  lastDirection: "down", // track which direction to face
 };
 
 let keys = {};
@@ -779,25 +780,36 @@ function update() {
   let newY = p.y;
   let moving = false;
 
+  // Determine direction with priority (check in order: up, down, left, right)
   if (keys["ArrowUp"]) {
     newY -= p.speed;
     playerSprite.frameY = 3; // Up row
+    playerSprite.lastDirection = "up";
     moving = true;
-  }
-  if (keys["ArrowDown"]) {
+  } else if (keys["ArrowDown"]) {
     newY += p.speed;
     playerSprite.frameY = 0; // Down row
+    playerSprite.lastDirection = "down";
     moving = true;
-  }
-  if (keys["ArrowLeft"]) {
+  } else if (keys["ArrowLeft"]) {
     newX -= p.speed;
     playerSprite.frameY = 1; // Left row
+    playerSprite.lastDirection = "left";
     moving = true;
-  }
-  if (keys["ArrowRight"]) {
+  } else if (keys["ArrowRight"]) {
     newX += p.speed;
     playerSprite.frameY = 2; // Right row
+    playerSprite.lastDirection = "right";
     moving = true;
+  } else {
+    // No keys pressed - face the last direction
+    const directionMap = {
+      up: 3,
+      down: 0,
+      left: 1,
+      right: 2,
+    };
+    playerSprite.frameY = directionMap[playerSprite.lastDirection];
   }
 
   // Collision-safe movement using your existing canMoveTo()
