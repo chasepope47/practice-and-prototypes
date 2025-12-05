@@ -29,6 +29,45 @@ sprites.terminal.src = "assets/terminal.png";
 
 let currentRoomKey = "lobby";
 
+const ROOM_DISPLAY_NAMES = {
+  lobby: "Lobby",
+  roleHub: "Role Hub",
+  ops: "Operations",
+};
+
+function drawHUD() {
+  const op = gameState.operator;
+  const roomName = ROOM_DISPLAY_NAMES[currentRoomKey] || currentRoomKey;
+
+  // Background bar
+  ctx.save();
+  ctx.fillStyle = "rgba(15,23,42,0.92)";
+  ctx.fillRect(0, 0, canvas.width, 32);
+
+  ctx.font = "12px monospace";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#e5e7eb";
+
+  // Left: room
+  ctx.textAlign = "left";
+  ctx.fillText(`Room: ${roomName}`, 8, 16);
+
+  // Center: role + level
+  const roleDisplay = op.roleName ? `${op.roleName} (Lv ${op.level})` : "No role selected";
+  ctx.textAlign = "center";
+  ctx.fillText(`Role: ${roleDisplay}`, canvas.width / 2, 16);
+
+  // Right: credits + detection
+  ctx.textAlign = "right";
+  ctx.fillText(
+    `Credits: ${op.credits}  Det: ${op.detection}%`,
+    canvas.width - 8,
+    16
+  );
+
+  ctx.restore();
+}
+
 function loadRoom(key, spawnOverride) {
   currentRoomKey = key;
   const room = rooms[key];
@@ -134,7 +173,21 @@ if (sprites.player.naturalWidth) {
 }
 
 function drawObjects() {
+  ctx.font = "10px monospace";
+  ctx.textBaseline = "bottom";
+
   for (const obj of objects) {
+    // Draw labels/signs if present
+    if (obj.labelText) {
+      ctx.fillStyle = obj.labelColor || "#e5e7eb";
+      ctx.textAlign = "center";
+      ctx.fillText(
+        obj.labelText,
+        obj.x + obj.width / 2,
+        obj.y - 4 // just above the object
+      );
+    }
+
     if (obj.type === "npc" || obj.type === "roleNpc") {
       // Use npc.png sheet, pick a single “idle facing down” frame
       if (sprites.npc.complete && sprites.npc.naturalWidth) {
@@ -181,6 +234,13 @@ function drawObjects() {
         ctx.fillStyle = obj.color || "#38bdf8";
         ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
       }
+    } else if (obj.type === "door") {
+      // Door sprite: simple lit frame to stand out
+      ctx.fillStyle = "#020617";
+      ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+      ctx.strokeStyle = "#22c55e";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
     } else {
       // Any other object type, fallback rectangle
       ctx.fillStyle = obj.color || "#e5e7eb";
@@ -660,15 +720,16 @@ function update() {
   checkDoorTransition();
 }
 
-// gameLoop can stay basically the same
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawMap();
   drawObjects();
   drawPlayer();
+  drawHUD();     // <-- add this line
   update();
   requestAnimationFrame(gameLoop);
 }
+
 
 // ---------- Input ----------
 
@@ -695,7 +756,7 @@ window.addEventListener("keyup", (e) => {
 
 function init() {
   loadRoom("lobby");
-  
+
   showDialogue([
     "NetRunner Ops RPG:",
     "Arrow keys: move",

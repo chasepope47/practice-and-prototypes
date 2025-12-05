@@ -56,6 +56,8 @@ const rooms = {
           x: 7 * TILE_SIZE,
           y: 8 * TILE_SIZE, // enter at bottom of role room
         },
+        labelText: "ROLE HUB",
+        labelColor: "#e5e7eb",
         lines: ["You step through the door into the Role Hub..."],
       },
     ],
@@ -125,6 +127,8 @@ const rooms = {
         width: TILE_SIZE,
         height: TILE_SIZE,
         color: "#38bdf8",
+        labelText: "TRAINING",
+        labelColor: "#38bdf8",
         lines: [
           "TRAINING TERMINAL:",
           "Review how roles, contracts, and ops work.",
@@ -141,6 +145,8 @@ const rooms = {
         width: TILE_SIZE,
         height: TILE_SIZE,
         color: "#38bdf8",
+        labelText:"CONTRACTS",
+        labelColor: "#facc15",
         lines: [
           "CONTRACTS CONSOLE:",
           "Browse and accept training contracts here.",
@@ -161,6 +167,8 @@ const rooms = {
           x: 7 * TILE_SIZE,
           y: 8 * TILE_SIZE,
         },
+        labelText: "LOBBY",
+        labelColor: "#e5e7eb",
         lines: ["You return to the Lobby."],
       },
 
@@ -177,6 +185,8 @@ const rooms = {
           x: 7 * TILE_SIZE,
           y: 8 * TILE_SIZE,
         },
+        labelText: "OPS",
+        labelColor: "#22c55e",
         lines: ["You step into the Operations room..."],
       },
     ],
@@ -203,6 +213,8 @@ const rooms = {
           x: 7 * TILE_SIZE,
           y: 1 * TILE_SIZE,
         },
+        labelText: "ROLE HUB",
+        labelColor: "#e5e7eb",
         lines: ["You return to the Role Hub."],
       },
 
