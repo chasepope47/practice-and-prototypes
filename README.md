@@ -17,6 +17,47 @@ This repo exists to:
 
 ---
 
+## 🧠 Knowledge & Skill Evidence
+
+Below are tools, languages, and technologies I have hands-on experience with.  
+Each includes a small proof-of-knowledge project, script, config, or write-up.
+
+### 🔹 Programming Languages
+- **C++** — basic programs, compilers, OOP practice → `cpp/basics/`
+- **C#** — console apps, Windows tooling → `csharp/basics/`
+- **Java** — OOP, algorithms, project structure → `java/exercises/`
+- **JavaScript** — CLI tools, DOM practice → `javascript/*`
+- **Python** — automation, hashing tool, scanning → `python/*`
+- **Bash** — Linux scripting, backups → `bash/*`
+- **PowerShell** — Windows admin scripts → `powershell/*`
+
+### 🔹 Web Development
+- **HTML5** — forms, layouts → `html-css/web-labs/`
+- **CSS3** — styling basics
+- **JavaScript** — frontend and backend practice
+
+### 🔹 Cloud & Databases
+- **AWS, Google Cloud, Firebase** — (coming soon) cloud notes + starter projects
+- **SQL / Microsoft SQL Server / DynamoDB** — example schemas → `sql/queries/`
+
+### 🔹 Security, Networking, & Systems
+- **Cisco / Networking** — ping sweeps, packet analysis → `networking/scripts/`
+- **Docker** — containerized Minecraft servers + dev containers
+- **Bitwarden / OpenAPI / Auth** — security notes (CTF + labs coming)
+- **Windows Terminal** — customization + scripts → `powershell/`
+- **Linux** — bash scripts, system tasks → `bash/linux-scripts/`
+
+### 🔹 Hardware & Platforms
+- **Raspberry Pi** — projects & configs (coming)
+- **Ubiquiti / Networking Lab** — homelab setups & VLAN configs
+- **AMD, NVIDIA** — compute + gaming configs (notes soon)
+
+### 🔹 Gaming / Engines (for fun projects)
+- **Unity / Unreal Engine** — prototype folders (coming)
+- **Steam / EA / Ubisoft / Riot / Xbox** — configs & scripting notes
+
+---
+
 ## 📂 Repository Structure
 
 The repo is organized to keep languages and experiments easy to find:
