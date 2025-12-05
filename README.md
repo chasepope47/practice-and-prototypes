@@ -21,23 +21,28 @@ This repo exists to:
 
 The repo is organized to keep languages and experiments easy to find:
 
-- practice-and-prototypes/
-  -javascript/
-    -basics/
-    -small-projectss/
-    -experiments/
-  -python/
-    -scripts/
-    -algorithms/
-    -prototypes/
-  -java/
-    -exercises/
-    -oop-practice/
-    -mini-projects/
-  -powershell/
-    -automation-scripts/
-  -misc/
-    -other-languages-or-experiments/
+practice-and-prototypes/
+│
+├── javascript/
+│ ├── basics/
+│ ├── small-projects/
+│ └── experiments/
+│
+├── python/
+│ ├── scripts/
+│ ├── algorithms/
+│ └── prototypes/
+│
+├── java/
+│ ├── exercises/
+│ ├── oop-practice/
+│ └── mini-projects/
+│
+├── powershell/
+│ └── automation-scripts/
+│
+└── misc/
+└── other-languages-or-experiments/
 
   ---
 
