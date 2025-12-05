@@ -667,6 +667,14 @@ function handleInteraction(obj) {
     showDialogue(obj.lines);
     // Quick little delay so dialogue is visible; then perform action too
     setTimeout(() => performAction(obj.action), 250);
+  } else if (obj.type === "door") {
+    // Doors: change rooms when interacted with
+    if (obj.targetRoom) {
+      loadRoom(obj.targetRoom, obj.targetSpawn);
+      if (obj.lines) {
+        showDialogue(obj.lines);
+      }
+    }
   }
 }
 
@@ -717,7 +725,7 @@ function update() {
   if (canMoveTo(p.x, newY)) p.y = newY;
 
   animatePlayer(moving);
-  checkDoorTransition();
+  // Doors are now triggered by interaction (Space), not auto-walk for now.
 }
 
 function gameLoop() {
