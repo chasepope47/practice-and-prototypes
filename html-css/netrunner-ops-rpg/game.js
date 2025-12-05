@@ -158,12 +158,13 @@ function loadRoom(key, spawnOverride) {
   gameState.player.y = spawn.y;
 }
 
-// Player sprite sheet metadata (3 rows x 4 cols)
+// Player sprite sheet metadata (4 rows x 4 cols)
+// Rows: 0=down, 1=left, 2=right, 3=up
 const playerSprite = {
   cols: 4,
-  rows: 3,
+  rows: 4,
   frameX: 0,          // current column (0–3)
-  frameY: 0,          // current row (0–2)
+  frameY: 0,          // current row (0–3)
   frameTimer: 0,
   frameInterval: 10,  // lower = faster animation
   lastDirection: "down", // track which direction to face
@@ -783,12 +784,12 @@ function update() {
   // Determine direction with priority (check in order: up, down, left, right)
   if (keys["ArrowUp"]) {
     newY -= p.speed;
-    playerSprite.frameY = 0; // Up row
+    playerSprite.frameY = 3; // Up row
     playerSprite.lastDirection = "up";
     moving = true;
   } else if (keys["ArrowDown"]) {
     newY += p.speed;
-    playerSprite.frameY = 0; // Down row (same as up for now)
+    playerSprite.frameY = 0; // Down row
     playerSprite.lastDirection = "down";
     moving = true;
   } else if (keys["ArrowLeft"]) {
@@ -804,7 +805,7 @@ function update() {
   } else {
     // No keys pressed - face the last direction
     const directionMap = {
-      up: 0,
+      up: 3,
       down: 0,
       left: 1,
       right: 2,
