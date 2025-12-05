@@ -1,0 +1,4 @@
+# gcloud VM create example
+gcloud compute instances create my-vm \
+  --zone=us-west1-b \
+  --machine-type=e2-micro

@@ -1,0 +1,9 @@
+enable
+conf t
+hostname LabSwitch
+vlan 10
+name STUDENTS
+exit
+interface gi0/1
+switchport mode access
+switchport access vlan 10
