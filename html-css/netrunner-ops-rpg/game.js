@@ -166,7 +166,7 @@ function loadRoom(key, spawnOverride) {
 // Each row has 8 animation frames
 const playerSprite = {
   cols: 3,
-  rows: 3,
+  rows: 4,
   frameX: 0,          // current column (0–7)
   frameY: 0,          // current row (0–3)
   frameTimer: 0,
@@ -252,15 +252,15 @@ function drawMap() {
   }
 
   // DEBUG: draw raw player sheet in top-left so we know it loads
-  if (sprites.player.naturalWidth) {
-    const sw = sprites.player.naturalWidth;
-    const sh = sprites.player.naturalHeight;
-    const thumbW = 160;
-    const thumbH = Math.floor((thumbW * sh) / sw);
+  // if (sprites.player.naturalWidth) {
+    // const sw = sprites.player.naturalWidth;
+    // const sh = sprites.player.naturalHeight;
+    // const thumbW = 160;
+    // const thumbH = Math.floor((thumbW * sh) / sw);
     // draw thumbnail on top so it isn't covered by map tiles
-    ctx.drawImage(sprites.player, 0, 0, sw, sh, 0, 0, thumbW, thumbH);
-  }
-}
+    // ctx.drawImage(sprites.player, 0, 0, sw, sh, 0, 0, thumbW, thumbH);
+  // }
+// }
 
 function drawObjects() {
   ctx.font = "10px monospace";
