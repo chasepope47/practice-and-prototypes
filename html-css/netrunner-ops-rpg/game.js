@@ -154,8 +154,11 @@ function loadRoom(key, spawnOverride) {
   objects = room.objects;
 
   const spawn = spawnOverride || room.spawn;
-  gameState.player.x = spawn.x;
-  gameState.player.y = spawn.y;
+  // Center the player sprite inside the tile so the visual aligns with the map
+  const px = spawn.x + Math.floor((TILE_SIZE - gameState.player.width) / 2);
+  const py = spawn.y + Math.floor((TILE_SIZE - gameState.player.height) / 2);
+  gameState.player.x = px;
+  gameState.player.y = py;
 }
 
 // Player sprite sheet metadata (4 rows x 8 cols)
@@ -178,8 +181,8 @@ const gameState = {
   player: {
     x: 7 * TILE_SIZE,    // center column
     y: 8 * TILE_SIZE,    // lobby row
-    width: TILE_SIZE - 4,
-    height: TILE_SIZE - 4,
+    width: 27,
+    height: 27,
     speed: 2,
     color: "#0ff", // used only as fallback
   },
@@ -243,9 +246,14 @@ function drawTile(x, y, tile) {
 
 function drawMap() {
   // DEBUG: draw raw player sheet in top-left so we know it loads
-if (sprites.player.naturalWidth) {
-  ctx.drawImage(sprites.player, 0, 0, 64, 64, 0, 0, 64, 64);
-}
+  if (sprites.player.naturalWidth) {
+    // draw a small thumbnail of the whole sprite sheet so we can inspect layout
+    const sw = sprites.player.naturalWidth;
+    const sh = sprites.player.naturalHeight;
+    const thumbW = 160;
+    const thumbH = Math.floor((thumbW * sh) / sw);
+    ctx.drawImage(sprites.player, 0, 0, sw, sh, 0, 0, thumbW, thumbH);
+  }
 
   for (let row = 0; row < worldMap.length; row++) {
     for (let col = 0; col < worldMap[row].length; col++) {
@@ -347,8 +355,8 @@ function drawPlayer() {
       frameHeight,
       p.x,
       p.y,
-      TILE_SIZE,                          // draw at tile size (32px)
-      TILE_SIZE                           // draw at tile size (32px)
+      p.width,                          // draw at player width (e.g. 27px)
+      p.height                          // draw at player height (e.g. 27px)
     );
   } else {
     // fallback while loading
