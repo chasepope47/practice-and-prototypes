@@ -161,17 +161,11 @@ function loadRoom(key, spawnOverride) {
   gameState.player.y = py;
 }
 
-// Player sprite sheet metadata (4 rows x 8 cols)
-// Rows: 0=down, 1=left, 2=right, 3=up
-// Each row has 8 animation frames
-const playerSprite = {
-  cols: 8,
-  rows: 4,
-  frameX: 0,          // current column (0–7)
-  frameY: 0,          // current row (0–3)
-  frameTimer: 0,
-  frameInterval: 10,  // lower = faster animation
-  lastDirection: "down", // track which direction to face
+sprites.player.onload = () => {
+  console.log("Player sprite loaded:", sprites.player.naturalWidth, sprites.player.naturalHeight);
+};
+sprites.player.onerror = () => {
+  console.error("FAILED to load player sprite at assets/player.png");
 };
 
 let keys = {};
@@ -347,16 +341,21 @@ function drawPlayer() {
     const frameWidth = sheet.naturalWidth / playerSprite.cols;   // 128 pixels
     const frameHeight = sheet.naturalHeight / playerSprite.rows;  // 322 pixels
 
+    // Crop a centered square from the source frame so tall frames don't clip.
+    const cropSize = Math.min(frameWidth, frameHeight);
+    const srcX = playerSprite.frameX * frameWidth + Math.floor((frameWidth - cropSize) / 2);
+    const srcY = playerSprite.frameY * frameHeight + Math.floor((frameHeight - cropSize) / 2);
+
     ctx.drawImage(
       sheet,
-      playerSprite.frameX * frameWidth,   // src x
-      playerSprite.frameY * frameHeight,  // src y
-      frameWidth,
-      frameHeight,
+      srcX,
+      srcY,
+      cropSize,
+      cropSize,
       p.x,
       p.y,
-      p.width,                          // draw at player width (e.g. 27px)
-      p.height                          // draw at player height (e.g. 27px)
+      p.width,
+      p.height
     );
   } else {
     // fallback while loading
