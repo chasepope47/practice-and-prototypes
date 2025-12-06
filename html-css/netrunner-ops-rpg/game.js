@@ -1,6 +1,8 @@
 // game.js
 // Core loop for the NetRunner Ops RPG
 
+console.log("game.js loaded"); 
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const dialogueBox = document.getElementById("dialogueBox");
@@ -879,6 +881,8 @@ window.addEventListener("keyup", (e) => {
 // ---------- Init ----------
 
 function init() {
+  console.log("init starting");
+  
   loadRoom("lobby");
 
   showDialogue([
