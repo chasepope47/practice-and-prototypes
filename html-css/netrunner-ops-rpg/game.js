@@ -335,8 +335,8 @@ function drawPlayer() {
 
   if (sprites.player.complete && sprites.player.naturalWidth) {
     const sheet = sprites.player;
-    const frameWidth = sheet.naturalWidth / playerSprite.cols;  // 3 columns
-    const frameHeight = sheet.naturalHeight / playerSprite.rows; // 4 rows
+    const frameWidth = sheet.naturalWidth / playerSprite.cols;   // 256 pixels
+    const frameHeight = sheet.naturalHeight / playerSprite.rows;  // 322 pixels
 
     ctx.drawImage(
       sheet,
@@ -346,8 +346,8 @@ function drawPlayer() {
       frameHeight,
       p.x,
       p.y,
-      p.width,
-      p.height
+      TILE_SIZE,                          // draw at tile size (32px)
+      TILE_SIZE                           // draw at tile size (32px)
     );
   } else {
     // fallback while loading
