@@ -161,6 +161,19 @@ function loadRoom(key, spawnOverride) {
   gameState.player.y = py;
 }
 
+// Player sprite sheet metadata (4 rows x 8 cols)
+// Rows: 0=down, 1=left, 2=right, 3=up
+// Each row has 8 animation frames
+const playerSprite = {
+  cols: 8,
+  rows: 4,
+  frameX: 0,          // current column (0–7)
+  frameY: 0,          // current row (0–3)
+  frameTimer: 0,
+  frameInterval: 10,  // lower = faster animation
+  lastDirection: "down", // track which direction to face
+};
+
 sprites.player.onload = () => {
   console.log("Player sprite loaded:", sprites.player.naturalWidth, sprites.player.naturalHeight);
 };
