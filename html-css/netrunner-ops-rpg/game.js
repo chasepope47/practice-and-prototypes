@@ -239,20 +239,20 @@ function drawTile(x, y, tile) {
 }
 
 function drawMap() {
-  // DEBUG: draw raw player sheet in top-left so we know it loads
-  if (sprites.player.naturalWidth) {
-    // draw a small thumbnail of the whole sprite sheet so we can inspect layout
-    const sw = sprites.player.naturalWidth;
-    const sh = sprites.player.naturalHeight;
-    const thumbW = 160;
-    const thumbH = Math.floor((thumbW * sh) / sw);
-    ctx.drawImage(sprites.player, 0, 0, sw, sh, 0, 0, thumbW, thumbH);
-  }
-
   for (let row = 0; row < worldMap.length; row++) {
     for (let col = 0; col < worldMap[row].length; col++) {
       drawTile(col * TILE_SIZE, row * TILE_SIZE, worldMap[row][col]);
     }
+  }
+
+  // DEBUG: draw raw player sheet in top-left so we know it loads
+  if (sprites.player.naturalWidth) {
+    const sw = sprites.player.naturalWidth;
+    const sh = sprites.player.naturalHeight;
+    const thumbW = 160;
+    const thumbH = Math.floor((thumbW * sh) / sw);
+    // draw thumbnail on top so it isn't covered by map tiles
+    ctx.drawImage(sprites.player, 0, 0, sw, sh, 0, 0, thumbW, thumbH);
   }
 }
 
@@ -345,6 +345,12 @@ function drawPlayer() {
     const cropSize = Math.min(frameWidth, frameHeight);
     const srcX = playerSprite.frameX * frameWidth + Math.floor((frameWidth - cropSize) / 2);
     const srcY = playerSprite.frameY * frameHeight + Math.floor((frameHeight - cropSize) / 2);
+
+    // One-time debug log to help diagnose missing image issues
+    if (!window.__playerDebugLogged) {
+      console.log("drawPlayer debug:", { frameWidth, frameHeight, cropSize, srcX, srcY, pWidth: p.width, pHeight: p.height });
+      window.__playerDebugLogged = true;
+    }
 
     ctx.drawImage(
       sheet,
