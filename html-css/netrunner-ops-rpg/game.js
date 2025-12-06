@@ -166,7 +166,7 @@ function loadRoom(key, spawnOverride) {
 // Each row has 8 animation frames
 const playerSprite = {
   cols: 3,
-  rows: 4,
+  rows: 3,
   frameX: 0,          // current column (0–7)
   frameY: 0,          // current row (0–3)
   frameTimer: 0,
@@ -250,17 +250,6 @@ function drawMap() {
       drawTile(col * TILE_SIZE, row * TILE_SIZE, worldMap[row][col]);
     }
   }
-
-  // DEBUG: draw raw player sheet in top-left so we know it loads
-  // if (sprites.player.naturalWidth) {
-    // const sw = sprites.player.naturalWidth;
-    // const sh = sprites.player.naturalHeight;
-    // const thumbW = 160;
-    // const thumbH = Math.floor((thumbW * sh) / sw);
-    // draw thumbnail on top so it isn't covered by map tiles
-    // ctx.drawImage(sprites.player, 0, 0, sw, sh, 0, 0, thumbW, thumbH);
-  // }
-// }
 
 function drawObjects() {
   ctx.font = "10px monospace";
@@ -809,6 +798,11 @@ function update() {
   let newY = p.y;
   let moving = false;
 
+  // Use the 3 rows we actually have:
+  // row 0 = side (used for left/rignt)
+  // row 1 = facing down
+  // row 2 = facing up
+
   // Determine direction with priority (check in order: up, down, left, right)
   if (keys["ArrowUp"]) {
     newY -= p.speed;
@@ -831,12 +825,12 @@ function update() {
     playerSprite.lastDirection = "right";
     moving = true;
   } else {
-    // No keys pressed - face the last direction
+    // No keys pressed - face the last direction, but amp to rows 0-2 only
     const directionMap = {
-      up: 3,
-      down: 0,
-      left: 1,
-      right: 2,
+      up: 2,
+      down: 1,
+      left: 0,
+      right: 0,
     };
     playerSprite.frameY = directionMap[playerSprite.lastDirection];
   }
