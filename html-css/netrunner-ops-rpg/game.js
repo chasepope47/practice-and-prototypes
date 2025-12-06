@@ -281,16 +281,13 @@ function drawObjects() {
         const frameY = 0; // first row = facing down
 
         ctx.drawImage(
-          sprites.npc,
-          frameX * frameWidth,
-          frameY * frameHeight,
-          frameWidth,
-          frameHeight,
-          obj.x,
-          obj.y,
-          obj.width,
-          obj.height
-        );
+         sheet,
+         srcX, srcY,
+         frameWidth, frameHeight,
+         p.x, p.y,
+         p.width, p.height
+    );
+
       } else {
         ctx.fillStyle = obj.color || "#fbbf24";
         ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
@@ -882,7 +879,7 @@ window.addEventListener("keyup", (e) => {
 
 function init() {
   console.log("init starting");
-  
+
   loadRoom("lobby");
 
   showDialogue([
