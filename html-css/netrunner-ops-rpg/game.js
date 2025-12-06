@@ -165,8 +165,8 @@ function loadRoom(key, spawnOverride) {
 // Rows: 0=down, 1=left, 2=right, 3=up
 // Each row has 8 animation frames
 const playerSprite = {
-  cols: 8,
-  rows: 4,
+  cols: 3,
+  rows: 3,
   frameX: 0,          // current column (0–7)
   frameY: 0,          // current row (0–3)
   frameTimer: 0,
@@ -344,17 +344,25 @@ function drawPlayer() {
 
   if (sprites.player.complete && sprites.player.naturalWidth) {
     const sheet = sprites.player;
-    const frameWidth = sheet.naturalWidth / playerSprite.cols;   // 128 pixels
-    const frameHeight = sheet.naturalHeight / playerSprite.rows;  // 322 pixels
 
-    // Crop a centered square from the source frame so tall frames don't clip.
-    const cropSize = Math.min(frameWidth, frameHeight);
-    const srcX = playerSprite.frameX * frameWidth + Math.floor((frameWidth - cropSize) / 2);
-    const srcY = playerSprite.frameY * frameHeight + Math.floor((frameHeight - cropSize) / 2);
+    // Adjust these to match your actual sprite sheet layout
+    const frameWidth = sheet.naturalWidth / playerSprite.cols;
+    const frameHeight = sheet.naturalHeight / playerSprite.rows;
 
-    // One-time debug log to help diagnose missing image issues
+    const srcX = playerSprite.frameX * frameWidth;
+    const srcY = playerSprite.frameY * frameHeight;
+
+    // One-time debug log to verify sizes
     if (!window.__playerDebugLogged) {
-      console.log("drawPlayer debug:", { frameWidth, frameHeight, cropSize, srcX, srcY, pWidth: p.width, pHeight: p.height });
+      console.log("drawPlayer debug:", {
+        sheetW: sheet.naturalWidth,
+        sheetH: sheet.naturalHeight,
+        frameWidth,
+        frameHeight,
+        frameX: playerSprite.frameX,
+        frameY: playerSprite.frameY,
+        dest: { x: p.x, y: p.y, w: p.width, h: p.height },
+      });
       window.__playerDebugLogged = true;
     }
 
@@ -362,8 +370,8 @@ function drawPlayer() {
       sheet,
       srcX,
       srcY,
-      cropSize,
-      cropSize,
+      frameWidth,
+      frameHeight,
       p.x,
       p.y,
       p.width,
