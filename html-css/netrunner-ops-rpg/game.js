@@ -250,6 +250,7 @@ function drawMap() {
       drawTile(col * TILE_SIZE, row * TILE_SIZE, worldMap[row][col]);
     }
   }
+}
 
 function drawObjects() {
   ctx.font = "10px monospace";
@@ -792,40 +793,38 @@ function update() {
     updateTransition();
     return; // no movement while transitioning
   }
-  
+
   const p = gameState.player;
   let newX = p.x;
   let newY = p.y;
   let moving = false;
 
   // Use the 3 rows we actually have:
-  // row 0 = side (used for left/rignt)
+  // row 0 = side (left/right)
   // row 1 = facing down
   // row 2 = facing up
 
-  // Determine direction with priority (check in order: up, down, left, right)
   if (keys["ArrowUp"]) {
     newY -= p.speed;
-    playerSprite.frameY = 3; // Up row
+    playerSprite.frameY = 2;      // up row
     playerSprite.lastDirection = "up";
     moving = true;
   } else if (keys["ArrowDown"]) {
     newY += p.speed;
-    playerSprite.frameY = 0; // Down row
+    playerSprite.frameY = 1;      // down row
     playerSprite.lastDirection = "down";
     moving = true;
   } else if (keys["ArrowLeft"]) {
     newX -= p.speed;
-    playerSprite.frameY = 1; // Left row
+    playerSprite.frameY = 0;      // side row
     playerSprite.lastDirection = "left";
     moving = true;
   } else if (keys["ArrowRight"]) {
     newX += p.speed;
-    playerSprite.frameY = 2; // Right row
+    playerSprite.frameY = 0;      // side row
     playerSprite.lastDirection = "right";
     moving = true;
   } else {
-    // No keys pressed - face the last direction, but amp to rows 0-2 only
     const directionMap = {
       up: 2,
       down: 1,
@@ -835,12 +834,10 @@ function update() {
     playerSprite.frameY = directionMap[playerSprite.lastDirection];
   }
 
-  // Collision-safe movement using your existing canMoveTo()
   if (canMoveTo(newX, p.y)) p.x = newX;
   if (canMoveTo(p.x, newY)) p.y = newY;
 
   animatePlayer(moving);
-  // Doors are now triggered by interaction (Space), not auto-walk for now.
 }
 
 function gameLoop() {
