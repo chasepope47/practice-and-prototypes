@@ -158,12 +158,13 @@ function loadRoom(key, spawnOverride) {
   gameState.player.y = spawn.y;
 }
 
-// Player sprite sheet metadata (4 rows x 4 cols)
+// Player sprite sheet metadata (4 rows x 8 cols)
 // Rows: 0=down, 1=left, 2=right, 3=up
+// Each row has 8 animation frames
 const playerSprite = {
-  cols: 4,
+  cols: 8,
   rows: 4,
-  frameX: 0,          // current column (0–3)
+  frameX: 0,          // current column (0–7)
   frameY: 0,          // current row (0–3)
   frameTimer: 0,
   frameInterval: 10,  // lower = faster animation
@@ -335,7 +336,7 @@ function drawPlayer() {
 
   if (sprites.player.complete && sprites.player.naturalWidth) {
     const sheet = sprites.player;
-    const frameWidth = sheet.naturalWidth / playerSprite.cols;   // 256 pixels
+    const frameWidth = sheet.naturalWidth / playerSprite.cols;   // 128 pixels
     const frameHeight = sheet.naturalHeight / playerSprite.rows;  // 322 pixels
 
     ctx.drawImage(
