@@ -174,13 +174,6 @@ const playerSprite = {
   lastDirection: "down", // track which direction to face
 };
 
-sprites.player.onload = () => {
-  console.log("Player sprite loaded:", sprites.player.naturalWidth, sprites.player.naturalHeight);
-};
-sprites.player.onerror = () => {
-  console.error("FAILED to load player sprite at assets/player.png");
-};
-
 let keys = {};
 
 // Player & game state
