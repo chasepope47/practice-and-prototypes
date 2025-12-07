@@ -274,7 +274,7 @@ function drawObjects() {
       // Use npc.png sheet, pick a single “idle facing down” frame
       if (sprites.npc.complete && sprites.npc.naturalWidth) {
         const cols = 3;
-        const rows = 4;
+        const rows = 3;
         const frameWidth = sprites.npc.naturalWidth / cols;
         const frameHeight = sprites.npc.naturalHeight / rows;
         const frameX = 1; // middle frame
