@@ -7,6 +7,32 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const dialogueBox = document.getElementById("dialogueBox");
 
+function resizeCanvas() {
+  const wrapper = document.getElementById("gameWrapper");
+  const padding = 16;
+
+  const availableWidth = wrapper.clientWidth - padding * 2;
+  const availableHeight = wrapper.clientHeight - padding * 2;
+
+  const tileCols = worldMap[0].length;
+  const tileRows = worldMap.length;
+
+  const mapPixelWidth = tileCols * TILE_SIZE;
+  const mapPixelHeight = tileRows * TILE_SIZE;
+
+  const scale = Math.min(
+    availableWidth / mapPixelWidth,
+    availableHeight / mapPixelHeight
+  );
+
+  canvas.width = mapPixelWidth * scale;
+  canvas.height = mapPixelHeight * scale;
+
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+}
+
+window.addEventListener("resize", resizeCanvas);
+
 // ---- SPRITE ASSETS ----
 const sprites = {
   tiles: new Image(),
@@ -187,8 +213,8 @@ const gameState = {
   player: {
     x: 7 * TILE_SIZE,    // center column
     y: 8 * TILE_SIZE,    // lobby row
-    width: 27,
-    height: 27,
+    width: TILE_SIZE,
+    height: TILE_SIZE,
     speed: 2,
     color: "#0ff", // used only as fallback
   },
@@ -349,40 +375,36 @@ function drawPlayer() {
   if (sprites.player.complete && sprites.player.naturalWidth) {
     const sheet = sprites.player;
 
-    // Adjust these to match your actual sprite sheet layout
-    const frameWidth = sheet.naturalWidth / playerSprite.cols;
-    const frameHeight = sheet.naturalHeight / playerSprite.rows;
+    const cellW = sheet.naturalWidth / playerSprite.cols;
+    const cellH = sheet.naturalHeight / playerSprite.rows;
 
-    const srcX = playerSprite.frameX * frameWidth;
-    const srcY = playerSprite.frameY * frameHeight;
+    // Crop inside the cell a bit to avoid the grey background edges
+    const margin = 4; // tweak if needed (2–6)
+    const srcX = playerSprite.frameX * cellW + margin;
+    const srcY = playerSprite.frameY * cellH + margin;
+    const srcW = cellW - margin * 2;
+    const srcH = cellH - margin * 2;
 
-    // One-time debug log to verify sizes
-    if (!window.__playerDebugLogged) {
-      console.log("drawPlayer debug:", {
-        sheetW: sheet.naturalWidth,
-        sheetH: sheet.naturalHeight,
-        frameWidth,
-        frameHeight,
-        frameX: playerSprite.frameX,
-        frameY: playerSprite.frameY,
-        dest: { x: p.x, y: p.y, w: p.width, h: p.height },
-      });
-      window.__playerDebugLogged = true;
-    }
+    // Dest size = one tile
+    const destW = TILE_SIZE;
+    const destH = TILE_SIZE;
+
+    // Keep feet on the ground: nudge up a tiny bit if needed
+    const destX = p.x;
+    const destY = p.y - 2; // try -2 or 0 depending on how it looks
 
     ctx.drawImage(
       sheet,
       srcX,
       srcY,
-      frameWidth,
-      frameHeight,
-      p.x,
-      p.y,
-      p.width,
-      p.height
+      srcW,
+      srcH,
+      destX,
+      destY,
+      destW,
+      destH
     );
   } else {
-    // fallback while loading
     ctx.fillStyle = p.color;
     ctx.fillRect(p.x, p.y, p.width, p.height);
   }
@@ -978,6 +1000,7 @@ function init() {
   console.log("init starting");
 
   loadRoom("lobby");
+  resizeCanvas();
 
   showDialogue([
     "NetRunner Ops RPG:",
