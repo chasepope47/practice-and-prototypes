@@ -473,6 +473,87 @@ function getNearbyObject() {
   return null;
 }
 
+function getInteractionPrompt(obj) {
+  if (!obj) return "";
+
+  if (obj.type === "npc") {
+    return "[E] Talk";
+  }
+
+  if (obj.type === "roleNpc") {
+    // e.g. Brute Forcer / Social Engineer / Analyst
+    return "[E] Talk: Mentor";
+  }
+
+  if (obj.type === "terminalContract") {
+    return "[E] Use: Contracts Console";
+  }
+
+  if (obj.type === "terminalAction") {
+    // You can customize per action if you want
+    switch (obj.action) {
+      case "recon":       return "[E] Run Recon";
+      case "scan":        return "[E] Run Scan";
+      case "phish":       return "[E] Run Social Attack";
+      case "brute":       return "[E] Run Brute Force";
+      case "backdoor":    return "[E] Establish Backdoor";
+      case "exfiltrate":  return "[E] Attempt Exfiltration";
+      default:            return "[E] Use Terminal";
+    }
+  }
+
+  if (obj.type === "door") {
+    // Use labelText like "ROLE HUB", "LOBBY", "OPS" if present
+    const dest = obj.labelText || "Door";
+    return `[E] Enter: ${dest}`;
+  }
+
+  // Fallback
+  return "[E] Interact";
+}
+
+function drawInteractionHint() {
+  // Don't show hints while dialogue is covering the screen
+  if (gameState.dialogueVisible) return;
+
+  const obj = getNearbyObject();
+  if (!obj) return;
+
+  const text = getInteractionPrompt(obj);
+  if (!text) return;
+
+  ctx.save();
+
+  ctx.font = "12px monospace";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  const paddingX = 10;
+  const paddingY = 4;
+  const textWidth = ctx.measureText(text).width;
+
+  // Position: small bar just above the bottom of the canvas
+  const boxWidth  = textWidth + paddingX * 2;
+  const boxHeight = 22;
+  const boxX = (canvas.width - boxWidth) / 2;
+  const boxY = canvas.height - boxHeight - 8; // 8px above bottom
+
+  // Background
+  ctx.fillStyle = "rgba(15,23,42,0.9)";
+  ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+
+  // Border
+  ctx.strokeStyle = "#22c55e";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+  // Text
+  ctx.fillStyle = "#e5e7eb";
+  ctx.fillText(text, canvas.width / 2, boxY + boxHeight / 2);
+
+  ctx.restore();
+}
+
 // ---------- Operator / mission logic ----------
 
 function setRole(roleKey) {
@@ -860,7 +941,8 @@ function gameLoop() {
   drawObjects();
   drawPlayer();
   drawHUD();     
-  drawTransitionOverlay();    // <-- add this line
+  drawTransitionOverlay();   
+  drawInteractionHint // <-- add this line
   update();
   requestAnimationFrame(gameLoop);
 }
