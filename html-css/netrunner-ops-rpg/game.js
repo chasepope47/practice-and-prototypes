@@ -174,7 +174,7 @@ const playerSprite = {
   cols: 3,
   rows: 3,
   frameX: 0,          // current column (0–7)
-  frameY: 0,          // current row (0–3)
+  frameY: 1,          // start facing down (middle row)
   frameTimer: 0,
   frameInterval: 10,  // lower = faster animation
   lastDirection: "down", // track which direction to face
@@ -466,7 +466,7 @@ function getNearbyObject() {
     const oxCenterX = obj.x + obj.width / 2;
     const oxCenterY = obj.y + obj.height / 2;
     const dist = Math.hypot(pxCenterX - oxCenterX, pxCenterY - oxCenterY);
-    if (dist < 32) {
+    if (dist < 48) {  // was 32, bump to 48 for easier triggering
       return obj;
     }
   }
@@ -514,7 +514,7 @@ function getInteractionPrompt(obj) {
 
 function drawInteractionHint() {
   // Don't show hints while dialogue is covering the screen
-  if (gameState.dialogueVisible) return;
+  // if (gameState.dialogueVisible) return;
 
   const obj = getNearbyObject();
   if (!obj) return;
@@ -942,7 +942,7 @@ function gameLoop() {
   drawPlayer();
   drawHUD();     
   drawTransitionOverlay();   
-  drawInteractionHint // <-- add this line
+  drawInteractionHint(); // <-- add this line
   update();
   requestAnimationFrame(gameLoop);
 }
