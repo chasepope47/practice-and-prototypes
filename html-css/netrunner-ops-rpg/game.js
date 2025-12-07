@@ -152,8 +152,12 @@ function drawHUD() {
 function loadRoom(key, spawnOverride) {
   currentRoomKey = key;
   const room = rooms[key];
+
+
   worldMap = room.worldMap;
   objects = room.objects;
+
+console.log("loadRoom:", key, "objects:", objects ? objects.length : 0);
 
   const spawn = spawnOverride || room.spawn;
   // Center the player sprite inside the tile so the visual aligns with the map
@@ -255,48 +259,60 @@ function drawMap() {
 }
 
 function drawObjects() {
+  if (!Array.isArray(objects) || objects.length === 0) {
+    // Nothing to draw for this room
+    return;
+  }
+
   ctx.font = "10px monospace";
   ctx.textBaseline = "bottom";
 
   for (const obj of objects) {
-    // Draw labels/signs if present
+    // --- DEBUG OUTLINE (always draw this) ---
+    ctx.save();
+    ctx.globalAlpha = 0.4;
+    ctx.strokeStyle = "#f472b6"; // pink debug outline
+    ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+    ctx.restore();
+
+    // --- LABEL ABOVE OBJECT (if any) ---
     if (obj.labelText) {
       ctx.fillStyle = obj.labelColor || "#e5e7eb";
       ctx.textAlign = "center";
       ctx.fillText(
         obj.labelText,
         obj.x + obj.width / 2,
-        obj.y - 4 // just above the object
+        obj.y - 4
       );
     }
 
+    // --- VISUAL BY TYPE ---
     if (obj.type === "npc" || obj.type === "roleNpc") {
-      // Use npc.png sheet, pick a single “idle facing down” frame
+      // Use npc.png if it loaded, otherwise a colored box
       if (sprites.npc.complete && sprites.npc.naturalWidth) {
         const cols = 3;
-        const rows = 3;
+        const rows = 4;
         const frameWidth = sprites.npc.naturalWidth / cols;
         const frameHeight = sprites.npc.naturalHeight / rows;
-        const frameX = 1; // middle frame
-        const frameY = 0; // first row = facing down
+        const frameX = 1; // middle column
+        const frameY = 0; // facing down
 
         ctx.drawImage(
-         sheet,
-         srcX, srcY,
-         frameWidth, frameHeight,
-         p.x, p.y,
-         p.width, p.height
-    );
-
+          sprites.npc,
+          frameX * frameWidth,
+          frameY * frameHeight,
+          frameWidth,
+          frameHeight,
+          obj.x,
+          obj.y,
+          obj.width,
+          obj.height
+        );
       } else {
         ctx.fillStyle = obj.color || "#fbbf24";
         ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
       }
-    } else if (
-      obj.type === "terminalContract" ||
-      obj.type === "terminalAction"
-    ) {
-      // Single-sprite terminal
+    } else if (obj.type === "terminalContract" || obj.type === "terminalAction") {
       if (sprites.terminal.complete && sprites.terminal.naturalWidth) {
         ctx.drawImage(
           sprites.terminal,
@@ -314,14 +330,13 @@ function drawObjects() {
         ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
       }
     } else if (obj.type === "door") {
-      // Door sprite: simple lit frame to stand out
       ctx.fillStyle = "#020617";
       ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
       ctx.strokeStyle = "#22c55e";
       ctx.lineWidth = 2;
       ctx.strokeRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
     } else {
-      // Any other object type, fallback rectangle
+      // fallback for any other type
       ctx.fillStyle = obj.color || "#e5e7eb";
       ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
     }
