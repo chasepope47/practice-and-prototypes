@@ -1,18 +1,16 @@
 // rooms.js
-// Room definitions: tilemaps, spawn points, and interactive objects.
-//
-// Depends on:
-//  - TILE_SIZE (from config.js)
-// Produces:
-//  - ROOM_DISPLAY_NAMES
-//  - rooms.lobby
+// Room definitions + room name display mapping
+
+// Display names for HUD
+const ROOM_DISPLAY_NAMES = {
+  lobby: "Operations Lobby",
+  training: "Training Wing",
+  contracts: "Contracts Hall",
+  ops: "Ops Room",
+};
 
 console.log("rooms.js loaded");
 
-// Used by the HUD to display nicer names
-const ROOM_DISPLAY_NAMES = {
-  lobby: "Ops Hub Lobby",
-};
 
 // All rooms (we'll add more later)
 const rooms = {
