@@ -7,32 +7,6 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const dialogueBox = document.getElementById("dialogueBox");
 
-function resizeCanvas() {
-  const wrapper = document.getElementById("gameWrapper");
-  const padding = 16;
-
-  const availableWidth = wrapper.clientWidth - padding * 2;
-  const availableHeight = wrapper.clientHeight - padding * 2;
-
-  const tileCols = worldMap[0].length;
-  const tileRows = worldMap.length;
-
-  const mapPixelWidth = tileCols * TILE_SIZE;
-  const mapPixelHeight = tileRows * TILE_SIZE;
-
-  const scale = Math.min(
-    availableWidth / mapPixelWidth,
-    availableHeight / mapPixelHeight
-  );
-
-  canvas.width = mapPixelWidth * scale;
-  canvas.height = mapPixelHeight * scale;
-
-  ctx.setTransform(scale, 0, 0, scale, 0, 0);
-}
-
-window.addEventListener("resize", resizeCanvas);
-
 // ---- SPRITE ASSETS ----
 const sprites = {
   tiles: new Image(),
@@ -1010,7 +984,6 @@ function init() {
   console.log("init starting");
 
   loadRoom("lobby");
-  resizeCanvas();
 
   showDialogue([
     "NetRunner Ops RPG:",
