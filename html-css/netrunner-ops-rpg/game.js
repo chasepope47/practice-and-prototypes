@@ -3,30 +3,41 @@
 
 console.log("game.js loaded");
 
+// Canvas + DOM references
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const dialogueBox = document.getElementById("dialogueBox");
 
 // ---- ROOM LOADING ----
-
 function loadRoom(key, spawnOverride) {
   currentRoomKey = key;
   const room = rooms[key];
+  if (!room) {
+    console.error("No room found with key:", key);
+    return;
+  }
 
-  worldMap = room.worldMap;
-  objects = room.objects;
+  worldMap = room.worldMap || [];
+  objects = room.objects || [];
 
-  console.log("loadRoom:", key, "objects:", objects ? objects.length : 0);
+  console.log("loadRoom:", key, "objects:", objects.length);
 
   const spawn = spawnOverride || room.spawn;
-  const px = spawn.x + Math.floor((TILE_SIZE - gameState.player.width) / 2);
-  const py = spawn.y + Math.floor((TILE_SIZE - gameState.player.height) / 2);
+  if (!spawn) {
+    console.warn("No spawn defined for room:", key);
+    return;
+  }
+
+  const px =
+    spawn.x + Math.floor((TILE_SIZE - gameState.player.width) / 2);
+  const py =
+    spawn.y + Math.floor((TILE_SIZE - gameState.player.height) / 2);
+
   gameState.player.x = px;
   gameState.player.y = py;
 }
 
-// ---- MAP & OBJECT DRAWING ----
-
+// ---- DRAWING TILES / MAP / OBJECTS ----
 function drawTile(x, y, tile) {
   if (tile === 1) {
     const grd = ctx.createLinearGradient(x, y, x, y + TILE_SIZE);
@@ -38,7 +49,12 @@ function drawTile(x, y, tile) {
     ctx.strokeStyle = "rgba(15,23,42,0.9)";
     ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
   } else {
-    const grd = ctx.createLinearGradient(x, y, x + TILE_SIZE, y + TILE_SIZE);
+    const grd = ctx.createLinearGradient(
+      x,
+      y,
+      x + TILE_SIZE,
+      y + TILE_SIZE
+    );
     grd.addColorStop(0, "#111827");
     grd.addColorStop(1, "#1f2937");
     ctx.fillStyle = grd;
@@ -50,6 +66,7 @@ function drawTile(x, y, tile) {
 }
 
 function drawMap() {
+  if (!worldMap || !worldMap.length) return;
   for (let row = 0; row < worldMap.length; row++) {
     for (let col = 0; col < worldMap[row].length; col++) {
       drawTile(col * TILE_SIZE, row * TILE_SIZE, worldMap[row][col]);
@@ -71,7 +88,6 @@ function drawObjects() {
     ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
     ctx.restore();
 
-    // label above object, if any
     if (obj.labelText) {
       ctx.fillStyle = obj.labelColor || "#e5e7eb";
       ctx.textAlign = "center";
@@ -83,7 +99,7 @@ function drawObjects() {
     }
 
     if (obj.type === "npc" || obj.type === "roleNpc") {
-      if (sprites.npc && sprites.npc.complete && sprites.npc.naturalWidth) {
+      if (sprites.npc.complete && sprites.npc.naturalWidth) {
         const cols = 3;
         const rows = 4;
         const frameWidth = sprites.npc.naturalWidth / cols;
@@ -104,10 +120,18 @@ function drawObjects() {
         );
       } else {
         ctx.fillStyle = obj.color || "#fbbf24";
-        ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+        ctx.fillRect(
+          obj.x + 4,
+          obj.y + 4,
+          obj.width - 8,
+          obj.height - 8
+        );
       }
-    } else if (obj.type === "terminalContract" || obj.type === "terminalAction") {
-      if (sprites.terminal && sprites.terminal.complete && sprites.terminal.naturalWidth) {
+    } else if (
+      obj.type === "terminalContract" ||
+      obj.type === "terminalAction"
+    ) {
+      if (sprites.terminal.complete && sprites.terminal.naturalWidth) {
         ctx.drawImage(
           sprites.terminal,
           0,
@@ -121,68 +145,67 @@ function drawObjects() {
         );
       } else {
         ctx.fillStyle = obj.color || "#38bdf8";
-        ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+        ctx.fillRect(
+          obj.x + 4,
+          obj.y + 4,
+          obj.width - 8,
+          obj.height - 8
+        );
       }
     } else if (obj.type === "door") {
       ctx.fillStyle = "#020617";
-      ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+      ctx.fillRect(
+        obj.x + 4,
+        obj.y + 4,
+        obj.width - 8,
+        obj.height - 8
+      );
       ctx.strokeStyle = "#22c55e";
       ctx.lineWidth = 2;
-      ctx.strokeRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+      ctx.strokeRect(
+        obj.x + 4,
+        obj.y + 4,
+        obj.width - 8,
+        obj.height - 8
+      );
     } else if (obj.type === "terminalHub") {
       // ROLE HUB green box
       ctx.fillStyle = "#020617";
-      ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+      ctx.fillRect(
+        obj.x + 4,
+        obj.y + 4,
+        obj.width - 8,
+        obj.height - 8
+      );
       ctx.strokeStyle = "#22c55e";
       ctx.lineWidth = 2;
-      ctx.strokeRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+      ctx.strokeRect(
+        obj.x + 4,
+        obj.y + 4,
+        obj.width - 8,
+        obj.height - 8
+      );
     } else {
       ctx.fillStyle = obj.color || "#e5e7eb";
-      ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+      ctx.fillRect(
+        obj.x + 4,
+        obj.y + 4,
+        obj.width - 8,
+        obj.height - 8
+      );
     }
   }
 }
 
-// ---- MOVEMENT COLLISION (just for walls) ----
-
-function isWallAtPixel(pixelX, pixelY) {
-  const col = Math.floor(pixelX / TILE_SIZE);
-  const row = Math.floor(pixelY / TILE_SIZE);
-  if (
-    row < 0 ||
-    row >= worldMap.length ||
-    col < 0 ||
-    col >= worldMap[0].length
-  ) {
-    return true;
-  }
-  return worldMap[row][col] === 1;
-}
-
-function canMoveTo(newX, newY) {
-  const p = gameState.player;
-  const corners = [
-    [newX, newY],
-    [newX + p.width, newY],
-    [newX, newY + p.height],
-    [newX + p.width, newY + p.height],
-  ];
-  for (const [x, y] of corners) {
-    if (isWallAtPixel(x, y)) return false;
-  }
-  return true;
-}
-
-// ---- UPDATE & LOOP ----
-
+// ---- UPDATE (movement, etc.) ----
 function update() {
-  // transition state & overlay are handled in ui.js
+  // Handle room transition animation
   if (transition.active) {
     updateTransition();
     return;
   }
 
-  // when in terminal, freeze world movement
+  // In terminal mode, world is frozen
   if (terminalMode) {
     return;
   }
@@ -223,6 +246,7 @@ function update() {
   animatePlayer(moving);
 }
 
+// ---- MAIN LOOP ----
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -243,7 +267,6 @@ function gameLoop() {
 }
 
 // ---- INPUT ----
-
 window.addEventListener("keydown", (e) => {
   if (
     e.key === "ArrowUp" ||
@@ -259,29 +282,25 @@ window.addEventListener("keydown", (e) => {
 
   if (transition.active) return;
 
-  // In ROLE HUB terminal mode: handle menu keys instead of world interaction
+  // If we're in the ROLE HUB terminal, use its key handling
   if (terminalMode) {
-    // allow closing dialogue first
-    if (
-      (e.key === "e" || e.key === "E" || e.key === " ") &&
-      gameState.dialogueVisible
-    ) {
-      hideDialogue();
-      return;
-    }
+    handleTerminalKey(e);
+    return;
+  }
 
-    handleTerminalKey(e);  // from terminal.js
+  // Allow closing dialogue first with E/Space
+  if (
+    (e.key === "e" || e.key === "E" || e.key === " ") &&
+    gameState.dialogueVisible
+  ) {
+    hideDialogue();
     return;
   }
 
   // Normal world interaction
-  if (e.key === " " || e.key === "e" || e.key === "E") {
-    if (gameState.dialogueVisible) {
-      hideDialogue();
-    } else {
-      const obj = getNearbyObject(); // from interaction.js
-      handleInteraction(obj);        // from interaction.js
-    }
+  if (e.key === "e" || e.key === "E" || e.key === " ") {
+    const obj = getNearbyObject();
+    handleInteraction(obj);
   }
 });
 
@@ -290,7 +309,6 @@ window.addEventListener("keyup", (e) => {
 });
 
 // ---- INIT ----
-
 function init() {
   loadRoom("lobby");
 
@@ -301,8 +319,8 @@ function init() {
     "E: interact with NPCs & terminals.",
     "",
     "Step 1: Talk to a role mentor in the central area.",
-    "Step 2: Use the contract console on the right.",
-    "Step 3: Use action terminals below and finish at Exfil.",
+    "Step 2: Use the CONTRACTS console on the right.",
+    "Step 3: Jack into the ROLE HUB terminal below to run your actions.",
   ]);
 
   gameLoop();

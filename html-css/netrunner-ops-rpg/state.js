@@ -1,28 +1,24 @@
 // state.js
-// Shared global game state and helper values.
-//
-// Loaded after config.js and before rooms/player/mission/...
-//
-// Depends on:
-//  - TILE_SIZE (from config.js)
+// Global game state & input tracking.
+// Depends on: TILE_SIZE (from config.js)
 
 console.log("state.js loaded");
 
-// current room id (matches keys in rooms.js)
+// Which room is currently active
 let currentRoomKey = "lobby";
 
-// tile map + interactive objects for the current room
+// Current tilemap and interactive objects for the active room
 let worldMap = [];
 let objects = [];
 
-// keyboard state
+// Keyboard state
 let keys = {};
 
-// core game state
+// Core game state (player, operator stats, mission progress, dialogue)
 const gameState = {
   player: {
-    x: 7 * TILE_SIZE,
-    y: 8 * TILE_SIZE,
+    x: 0,
+    y: 0,
     width: TILE_SIZE,
     height: TILE_SIZE,
     speed: 2,
@@ -55,8 +51,3 @@ const gameState = {
   dialogueLines: [],
   dialogueVisible: false,
 };
-
-// simple helper for mission rolls
-function randomBetween(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
