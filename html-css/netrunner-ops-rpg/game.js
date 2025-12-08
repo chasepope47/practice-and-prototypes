@@ -375,34 +375,34 @@ function drawPlayer() {
   if (sprites.player.complete && sprites.player.naturalWidth) {
     const sheet = sprites.player;
 
-    const cellW = sheet.naturalWidth / playerSprite.cols;
-    const cellH = sheet.naturalHeight / playerSprite.rows;
+    const cellWidth = sheet.naturalWidth / playerSprite.cols;
+    const cellHeight = sheet.naturalHeight / playerSprite.rows;
 
-    // Crop inside the cell a bit to avoid the grey background edges
-    const margin = 4; // tweak if needed (2–6)
-    const srcX = playerSprite.frameX * cellW + margin;
-    const srcY = playerSprite.frameY * cellH + margin;
-    const srcW = cellW - margin * 2;
-    const srcH = cellH - margin * 2;
+    // Crop a bit inside the cell to avoid borders/extra stuff
+    const insetX = 8;      // tune these if needed
+    const insetY = 6;
+    const srcWidth = cellWidth - insetX * 2;
+    const srcHeight = cellHeight - insetY * 2;
 
-    // Dest size = one tile
-    const destW = TILE_SIZE;
-    const destH = TILE_SIZE;
+    const srcX = playerSprite.frameX * cellWidth + insetX;
+    const srcY = playerSprite.frameY * cellHeight + insetY;
 
-    // Keep feet on the ground: nudge up a tiny bit if needed
+    // Slightly taller dest so feet aren’t cut off
+    const destWidth = p.width;
+    const destHeight = p.height + 4;
     const destX = p.x;
-    const destY = p.y - 2; // try -2 or 0 depending on how it looks
+    const destY = p.y - 4;
 
     ctx.drawImage(
       sheet,
       srcX,
       srcY,
-      srcW,
-      srcH,
+      srcWidth,
+      srcHeight,
       destX,
       destY,
-      destW,
-      destH
+      destWidth,
+      destHeight
     );
   } else {
     ctx.fillStyle = p.color;
@@ -973,6 +973,17 @@ function gameLoop() {
 // ---------- Input ----------
 
 window.addEventListener("keydown", (e) => {
+  // Prevent scrolling with arrow keys and space
+  if (
+    e.key === "ArrowUp" ||
+    e.key === "ArrowDown" ||
+    e.key === "ArrowLeft" ||
+    e.key === "ArrowRight" ||
+    e.key === " "
+  ) {
+    e.preventDefault();
+  }
+
   keys[e.key] = true;
 
   if (transition.active) {
@@ -980,7 +991,6 @@ window.addEventListener("keydown", (e) => {
   }
 
   if (e.key === "e" || e.key === "E" || e.key === " ") {
-    e.preventDefault();
     if (gameState.dialogueVisible) {
       hideDialogue();
     } else {
