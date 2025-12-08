@@ -366,15 +366,29 @@ function getNearbyObject() {
   const pxCenterX = p.x + p.width / 2;
   const pxCenterY = p.y + p.height / 2;
 
+  let closest = null;
+  let closestDist = Infinity;
+
   for (const obj of objects) {
+    // If we're actually overlapping a DOOR tile, always prefer that
+    if (
+      obj.type === "door" &&
+      rectsOverlap(p.x, p.y, p.width, p.height, obj.x, obj.y, obj.width, obj.height)
+    ) {
+      return obj;
+    }
+
     const oxCenterX = obj.x + obj.width / 2;
     const oxCenterY = obj.y + obj.height / 2;
     const dist = Math.hypot(pxCenterX - oxCenterX, pxCenterY - oxCenterY);
-    if (dist < 48) {
-      return obj;
+
+    if (dist < 48 && dist < closestDist) {
+      closest = obj;
+      closestDist = dist;
     }
   }
-  return null;
+
+  return closest;
 }
 
 function getInteractionPrompt(obj) {
@@ -398,7 +412,7 @@ function getInteractionPrompt(obj) {
 
   if (obj.type === "door") {
     const dest = obj.labelText || "Door";
-    return `[E] Enter: ${dest}`;
+    return `[SPACE] Enter: ${dest}`;
   }
 
   return "[E] Interact";
