@@ -1,8 +1,6 @@
 // map.js
 // Multi-room layout for NetRunner Ops RPG
 
-const TILE_SIZE = 32;
-
 // Helper: basic 15x10 empty room (walls around, floor inside)
 function createEmptyRoom() {
   return [

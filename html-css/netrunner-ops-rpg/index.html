@@ -4,9 +4,7 @@
   <meta charset="UTF-8" />
   <title>NetRunner Ops RPG</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -18,7 +16,6 @@
       padding: 16px;
     }
 
-    /* Main game column */
     #gameContainer {
       display: flex;
       flex-direction: column;
@@ -26,7 +23,6 @@
       gap: 8px;
     }
 
-    /* Logical size is 480x320, but we scale it visually */
     #gameCanvas {
       width: 960px;   /* 2x scale */
       height: 640px;  /* 2x scale */
@@ -36,7 +32,6 @@
       display: block;
     }
 
-    /* Dialogue is now BELOW the canvas */
     #dialogueBox {
       max-width: 960px;
       min-height: 80px;
@@ -52,12 +47,13 @@
 </head>
 <body>
   <div id="gameContainer">
-    <!-- Important: keep the internal size 480x320 -->
     <canvas id="gameCanvas" width="480" height="320"></canvas>
     <div id="dialogueBox"></div>
   </div>
 
+  <script src="config.js"></script>
   <script src="map.js"></script>
+  <script src="player.js"></script>
   <script src="game.js"></script>
 </body>
 </html>
