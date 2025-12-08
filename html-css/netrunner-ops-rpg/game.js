@@ -111,14 +111,6 @@ function drawHUD() {
   const op = gameState.operator;
   const roomName = ROOM_DISPLAY_NAMES[currentRoomKey] || currentRoomKey;
 
-  let currentRoomKey = "lobby";
-
-  const ROOM_DISPLAY_NAMES = {
-    lobby: "Lobby",
-    roleHub: "Role Hub",
-    ops: "Operations",
-  };
-
   ctx.save();
   ctx.fillStyle = "rgba(15,23,42,0.92)";
   ctx.fillRect(0, 0, canvas.width, 32);
@@ -527,70 +519,6 @@ function update() {
   if (canMoveTo(p.x, newY)) p.y = newY;
 
   animatePlayer(moving);
-}
-
-// --- PLAYER SPRITE METADATA ---
-const playerSprite = {
-  cols: 3,
-  rows: 3,
-  frameX: 0,
-  frameY: 1,          // start facing down
-  frameTimer: 0,
-  frameInterval: 10,
-  lastDirection: "down",
-};
-
-function animatePlayer(moving) {
-  if (moving) {
-    playerSprite.frameTimer++;
-    if (playerSprite.frameTimer >= playerSprite.frameInterval) {
-      playerSprite.frameX = (playerSprite.frameX + 1) % playerSprite.cols;
-      playerSprite.frameTimer = 0;
-    }
-  } else {
-    playerSprite.frameX = 0;
-    playerSprite.frameTimer = 0;
-  }
-}
-
-function drawPlayer() {
-  const p = gameState.player;
-
-  if (sprites.player.complete && sprites.player.naturalWidth) {
-    const sheet = sprites.player;
-
-    const cellWidth = sheet.naturalWidth / playerSprite.cols;
-    const cellHeight = sheet.naturalHeight / playerSprite.rows;
-
-    const insetX = 6;
-    const insetY = 6;
-    const srcWidth = cellWidth - insetX * 2;
-    const srcHeight = cellHeight - insetY * 2;
-
-    const srcX = playerSprite.frameX * cellWidth + insetX;
-    const srcY = playerSprite.frameY * cellHeight + insetY;
-
-    const destWidth = 24;
-    const destHeight = 30;
-
-    const destX = p.x + (p.width - destWidth) / 2;
-    const destY = p.y + (p.height - destHeight);
-
-    ctx.drawImage(
-      sheet,
-      srcX,
-      srcY,
-      srcWidth,
-      srcHeight,
-      destX,
-      destY,
-      destWidth,
-      destHeight
-    );
-  } else {
-    ctx.fillStyle = p.color;
-    ctx.fillRect(p.x, p.y, p.width, p.height);
-  }
 }
 
 function gameLoop() {
