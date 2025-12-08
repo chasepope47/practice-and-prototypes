@@ -23,7 +23,7 @@ function drawPlayer() {
 
     // Crop in a bit so we avoid the transparent border/feet reflection
     const insetX = 6;
-    const insetY = 2;
+    const insetY = 0;
     const srcWidth = cellWidth - insetX * 2;
     const srcHeight = cellHeight - insetY * 2;
 
