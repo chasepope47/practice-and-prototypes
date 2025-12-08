@@ -739,12 +739,10 @@ function handleInteraction(obj) {
     setTimeout(() => performAction(obj.action), 250);
   } else if (obj.type === "door") {
     if (obj.targetRoom) {
-      // SPACE-triggered door entry
       startRoomTransition(obj.targetRoom, obj.targetSpawn, obj.lines);
     }
   }
 }
-
 
 // ---------- Update & loop & movement ----------
 
