@@ -7,136 +7,7 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const dialogueBox = document.getElementById("dialogueBox");
 
-// ---- SPRITE ASSETS ----
-const sprites = {
-  tiles: new Image(),
-  player: new Image(),
-  npc: new Image(),
-  terminal: new Image(),
-};
-
-sprites.tiles.src = "assets/tiles.png";
-sprites.player.src = "assets/player.png";
-sprites.npc.src = "assets/npc.png";
-sprites.terminal.src = "assets/terminal.png";
-
-sprites.player.onload = () => {
-  console.log(
-    "Player sprite loaded:",
-    sprites.player.naturalWidth,
-    sprites.player.naturalHeight
-  );
-};
-sprites.player.onerror = () => {
-  console.error("FAILED to load player sprite at assets/player.png");
-};
-
-let currentRoomKey = "lobby";
-
-// Techy fade transition state
-const transition = {
-  active: false,
-  phase: "idle",      // "idle" | "fadeOut" | "fadeIn"
-  alpha: 0,
-  targetRoom: null,
-  targetSpawn: null,
-  lines: null,
-};
-
-function startRoomTransition(targetRoom, targetSpawn, lines) {
-  transition.active = true;
-  transition.phase = "fadeOut";
-  transition.alpha = 0;
-  transition.targetRoom = targetRoom;
-  transition.targetSpawn = targetSpawn || null;
-  transition.lines = lines || null;
-}
-
-function updateTransition() {
-  if (!transition.active) return;
-
-  const speed = 0.08;
-
-  if (transition.phase === "fadeOut") {
-    transition.alpha += speed;
-    if (transition.alpha >= 1) {
-      transition.alpha = 1;
-      if (transition.targetRoom) {
-        loadRoom(transition.targetRoom, transition.targetSpawn);
-        if (transition.lines) {
-          showDialogue(transition.lines);
-        }
-      }
-      transition.phase = "fadeIn";
-    }
-  } else if (transition.phase === "fadeIn") {
-    transition.alpha -= speed;
-    if (transition.alpha <= 0) {
-      transition.alpha = 0;
-      transition.active = false;
-      transition.phase = "idle";
-      transition.targetRoom = null;
-      transition.targetSpawn = null;
-      transition.lines = null;
-    }
-  }
-}
-
-function drawTransitionOverlay() {
-  if (!transition.active || transition.alpha <= 0) return;
-
-  ctx.save();
-
-  ctx.globalAlpha = transition.alpha * 0.9;
-  ctx.fillStyle = "#020617";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.globalAlpha = transition.alpha * 0.35;
-  ctx.fillStyle = "#0f172a";
-  for (let y = 0; y < canvas.height; y += 4) {
-    ctx.fillRect(0, y, canvas.width, 2);
-  }
-
-  ctx.globalAlpha = transition.alpha;
-  ctx.font = "14px monospace";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = "#22c55e";
-  ctx.fillText("TRANSFERRING...", canvas.width / 2, canvas.height / 2);
-
-  ctx.restore();
-}
-
-function drawHUD() {
-  const op = gameState.operator;
-  const roomName = ROOM_DISPLAY_NAMES[currentRoomKey] || currentRoomKey;
-
-  ctx.save();
-  ctx.fillStyle = "rgba(15,23,42,0.92)";
-  ctx.fillRect(0, 0, canvas.width, 32);
-
-  ctx.font = "12px monospace";
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = "#e5e7eb";
-
-  ctx.textAlign = "left";
-  ctx.fillText(`Room: ${roomName}`, 8, 16);
-
-  const roleDisplay = op.roleName
-    ? `${op.roleName} (Lv ${op.level})`
-    : "No role selected";
-  ctx.textAlign = "center";
-  ctx.fillText(`Role: ${roleDisplay}`, canvas.width / 2, 16);
-
-  ctx.textAlign = "right";
-  ctx.fillText(
-    `Credits: ${op.credits}  Det: ${op.detection}%`,
-    canvas.width - 8,
-    16
-  );
-
-  ctx.restore();
-}
+// ---- ROOM LOADING ----
 
 function loadRoom(key, spawnOverride) {
   currentRoomKey = key;
@@ -154,51 +25,7 @@ function loadRoom(key, spawnOverride) {
   gameState.player.y = py;
 }
 
-let keys = {};
-
-// Player & game state
-const gameState = {
-  player: {
-    x: 7 * TILE_SIZE,
-    y: 8 * TILE_SIZE,
-    width: TILE_SIZE,
-    height: TILE_SIZE,
-    speed: 2,
-    color: "#0ff",
-  },
-  operator: {
-    handle: "Operator",
-    roleKey: null,
-    roleName: null,
-    stealth: 0,
-    tech: 0,
-    social: 0,
-    xp: 0,
-    credits: 0,
-    level: 1,
-    detection: 0,
-    intel: {
-      recon: false,
-      scan: false,
-      credentialEdge: false,
-      backdoor: false,
-    },
-  },
-  contract: {
-    active: false,
-    name: "Baseline Training Contract",
-    difficulty: 1,
-    baseReward: 80,
-  },
-  dialogueLines: [],
-  dialogueVisible: false,
-};
-
-function randomBetween(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-// ---------- Drawing ----------
+// ---- MAP & OBJECT DRAWING ----
 
 function drawTile(x, y, tile) {
   if (tile === 1) {
@@ -237,12 +64,14 @@ function drawObjects() {
   ctx.textBaseline = "bottom";
 
   for (const obj of objects) {
+    // debug hitbox
     ctx.save();
     ctx.globalAlpha = 0.4;
     ctx.strokeStyle = "#f472b6";
     ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
     ctx.restore();
 
+    // label above object, if any
     if (obj.labelText) {
       ctx.fillStyle = obj.labelColor || "#e5e7eb";
       ctx.textAlign = "center";
@@ -254,7 +83,7 @@ function drawObjects() {
     }
 
     if (obj.type === "npc" || obj.type === "roleNpc") {
-      if (sprites.npc.complete && sprites.npc.naturalWidth) {
+      if (sprites.npc && sprites.npc.complete && sprites.npc.naturalWidth) {
         const cols = 3;
         const rows = 4;
         const frameWidth = sprites.npc.naturalWidth / cols;
@@ -278,7 +107,7 @@ function drawObjects() {
         ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
       }
     } else if (obj.type === "terminalContract" || obj.type === "terminalAction") {
-      if (sprites.terminal.complete && sprites.terminal.naturalWidth) {
+      if (sprites.terminal && sprites.terminal.complete && sprites.terminal.naturalWidth) {
         ctx.drawImage(
           sprites.terminal,
           0,
@@ -300,6 +129,13 @@ function drawObjects() {
       ctx.strokeStyle = "#22c55e";
       ctx.lineWidth = 2;
       ctx.strokeRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+    } else if (obj.type === "terminalHub") {
+      // ROLE HUB green box
+      ctx.fillStyle = "#020617";
+      ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
+      ctx.strokeStyle = "#22c55e";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
     } else {
       ctx.fillStyle = obj.color || "#e5e7eb";
       ctx.fillRect(obj.x + 4, obj.y + 4, obj.width - 8, obj.height - 8);
@@ -307,22 +143,7 @@ function drawObjects() {
   }
 }
 
-// ---------- Dialogue ----------
-
-function showDialogue(lines) {
-  gameState.dialogueLines = lines;
-  dialogueBox.textContent = lines.join("\n");
-  dialogueBox.style.display = "block";
-  gameState.dialogueVisible = true;
-}
-
-function hideDialogue() {
-  dialogueBox.style.display = "none";
-  gameState.dialogueVisible = false;
-  gameState.dialogueLines = [];
-}
-
-// ---------- Collision & interaction ----------
+// ---- MOVEMENT COLLISION (just for walls) ----
 
 function isWallAtPixel(pixelX, pixelY) {
   const col = Math.floor(pixelX / TILE_SIZE);
@@ -352,403 +173,17 @@ function canMoveTo(newX, newY) {
   return true;
 }
 
-function rectsOverlap(ax, ay, aw, ah, bx, by, bw, bh) {
-  return (
-    ax < bx + bw &&
-    ax + aw > bx &&
-    ay < by + bh &&
-    ay + ah > by
-  );
-}
+// ---- UPDATE & LOOP ----
 
-function getNearbyObject() {
-  const p = gameState.player;
-  const pxCenterX = p.x + p.width / 2;
-  const pxCenterY = p.y + p.height / 2;
-
-  let closest = null;
-  let closestDist = Infinity;
-
-  for (const obj of objects) {
-    // If we're actually overlapping a DOOR tile, always prefer that
-    if (
-      obj.type === "door" &&
-      rectsOverlap(p.x, p.y, p.width, p.height, obj.x, obj.y, obj.width, obj.height)
-    ) {
-      return obj;
-    }
-
-    const oxCenterX = obj.x + obj.width / 2;
-    const oxCenterY = obj.y + obj.height / 2;
-    const dist = Math.hypot(pxCenterX - oxCenterX, pxCenterY - oxCenterY);
-
-    if (dist < 48 && dist < closestDist) {
-      closest = obj;
-      closestDist = dist;
-    }
-  }
-
-  return closest;
-}
-
-function getInteractionPrompt(obj) {
-  if (!obj) return "";
-
-  if (obj.type === "npc") return "[E] Talk";
-  if (obj.type === "roleNpc") return "[E] Talk: Mentor";
-  if (obj.type === "terminalContract") return "[E] Use: Contracts Console";
-
-  if (obj.type === "terminalAction") {
-    switch (obj.action) {
-      case "recon":       return "[E] Run Recon";
-      case "scan":        return "[E] Run Scan";
-      case "phish":       return "[E] Run Social Attack";
-      case "brute":       return "[E] Run Brute Force";
-      case "backdoor":    return "[E] Establish Backdoor";
-      case "exfiltrate":  return "[E] Attempt Exfiltration";
-      default:            return "[E] Use Terminal";
-    }
-  }
-
-  if (obj.type === "door") {
-    const dest = obj.labelText || "Door";
-    return `[SPACE] Enter: ${dest}`;
-  }
-
-  return "[E] Interact";
-}
-
-function drawInteractionHint() {
-  const obj = getNearbyObject();
-  if (!obj) return;
-
-  const text = getInteractionPrompt(obj);
-  if (!text) return;
-
-  ctx.save();
-
-  ctx.font = "12px monospace";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  const paddingX = 10;
-  const textWidth = ctx.measureText(text).width;
-
-  const boxWidth  = textWidth + paddingX * 2;
-  const boxHeight = 22;
-  const boxX = (canvas.width - boxWidth) / 2;
-  const boxY = canvas.height - boxHeight - 8;
-
-  ctx.fillStyle = "rgba(15,23,42,0.9)";
-  ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-
-  ctx.strokeStyle = "#22c55e";
-  ctx.lineWidth = 1;
-  ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
-
-  ctx.fillStyle = "#e5e7eb";
-  ctx.fillText(text, canvas.width / 2, boxY + boxHeight / 2);
-
-  ctx.restore();
-}
-
-// ---------- Operator / mission logic ----------
-
-function setRole(roleKey) {
-  const op = gameState.operator;
-  const role = ROLE_DEFS[roleKey];
-  if (!role) return;
-
-  op.roleKey = roleKey;
-  op.roleName = role.name;
-  op.stealth = role.stealth;
-  op.tech = role.tech;
-  op.social = role.social;
-
-  showDialogue([
-    `Role set to ${role.name}.`,
-    `Stats → Stealth ${op.stealth}, Tech ${op.tech}, Social ${op.social}.`,
-    "Now head to the mission console on the right to accept a contract.",
-  ]);
-}
-
-// ---------- Operator / mission logic ----------
-
-function adjustDetection(amount) {
-  const op = gameState.operator;
-  op.detection = Math.max(0, Math.min(100, op.detection + amount));
-}
-
-function addXP(amount) {
-  const op = gameState.operator;
-  op.xp += amount;
-  const needed = op.level * 50;
-  if (op.xp >= needed) {
-    op.level++;
-    op.xp -= needed;
-    op.stealth++;
-    op.tech++;
-    op.social++;
-    showDialogue([
-      "LEVEL UP!",
-      `You reach level ${op.level}.`,
-      `Your skills improve → Stealth ${op.stealth}, Tech ${op.tech}, Social ${op.social}.`,
-    ]);
-  }
-}
-
-function addCredits(amount) {
-  const op = gameState.operator;
-  op.credits += amount;
-}
-
-function resetIntelAndDetection() {
-  const op = gameState.operator;
-  op.detection = 0;
-  op.intel = {
-    recon: false,
-    scan: false,
-    credentialEdge: false,
-    backdoor: false,
-  };
-}
-
-function requireRoleAndContract(forAction = false) {
-  const op = gameState.operator;
-  if (!op.roleKey) {
-    showDialogue([
-      "You haven't chosen a role yet.",
-      "Talk to one of the mentors in the center area to set your role.",
-    ]);
-    return false;
-  }
-  if (forAction && !gameState.contract.active) {
-    showDialogue([
-      "No active contract.",
-      "Use the mission console on the right to accept a training contract first.",
-    ]);
-    return false;
-  }
-  return true;
-}
-
-function performAction(action) {
-  const op = gameState.operator;
-  const c = gameState.contract;
-
-  if (!requireRoleAndContract(true)) return;
-
-  if (action === "recon") {
-    let baseChance = 70 + op.stealth * 3;
-    const roll = randomBetween(1, 100);
-
-    if (roll <= baseChance) {
-      op.intel.recon = true;
-      adjustDetection(2);
-      addXP(5 * c.difficulty);
-      showDialogue([
-        "Recon successful.",
-        "You map infrastructure and spot weak points.",
-        `Detection: ${op.detection}/100`,
-      ]);
-    } else {
-      adjustDetection(8);
-      showDialogue([
-        "Recon attempt yielded little intel and raised some suspicion.",
-        `Detection: ${op.detection}/100`,
-      ]);
-    }
-  } else if (action === "scan") {
-    let baseChance = 60 + op.tech * 3;
-    if (op.intel.recon) baseChance += 10;
-    const roll = randomBetween(1, 100);
-
-    if (roll <= baseChance) {
-      op.intel.scan = true;
-      adjustDetection(10);
-      addXP(8 * c.difficulty);
-      showDialogue([
-        "Scan successful.",
-        "You identify misconfigurations in the simulated environment.",
-        `Detection: ${op.detection}/100`,
-      ]);
-    } else {
-      adjustDetection(20);
-      showDialogue([
-        "Scan is noisy and triggers increased monitoring in the sim.",
-        `Detection: ${op.detection}/100`,
-      ]);
-    }
-  } else if (action === "phish") {
-    let baseChance = 50 + op.social * 4;
-    if (op.intel.recon) baseChance += 5;
-    const roll = randomBetween(1, 100);
-
-    if (roll <= baseChance) {
-      op.intel.credentialEdge = true;
-      adjustDetection(8);
-      addXP(10 * c.difficulty);
-      showDialogue([
-        "Simulated user falls for your phishing scenario.",
-        "Training portal logs credentials for review.",
-        `Detection: ${op.detection}/100`,
-      ]);
-    } else {
-      adjustDetection(15);
-      showDialogue([
-        "Simulated user reports your message. Security tightens.",
-        `Detection: ${op.detection}/100`,
-      ]);
-    }
-  } else if (action === "brute") {
-    let baseChance = 40 + op.tech * 4;
-    if (op.intel.scan) baseChance += 10;
-    if (op.intel.credentialEdge) baseChance += 10;
-    const roll = randomBetween(1, 100);
-
-    if (roll <= baseChance) {
-      op.intel.backdoor = true;
-      adjustDetection(20);
-      addXP(12 * c.difficulty);
-      showDialogue([
-        "Aggressive simulated brute-force discloses a weak control.",
-        "A training backdoor route becomes available.",
-        `Detection: ${op.detection}/100`,
-      ]);
-    } else {
-      adjustDetection(30);
-      showDialogue([
-        "Defensive logs show clear brute-force patterns.",
-        "The training environment treats you as noisy.",
-        `Detection: ${op.detection}/100`,
-      ]);
-    }
-  } else if (action === "backdoor") {
-    let baseChance = 45 + op.tech * 3 + op.stealth * 2;
-    if (op.intel.scan) baseChance += 10;
-    if (op.intel.credentialEdge) baseChance += 10;
-    const roll = randomBetween(1, 100);
-
-    if (roll <= baseChance) {
-      op.intel.backdoor = true;
-      adjustDetection(15);
-      addXP(15 * c.difficulty);
-      showDialogue([
-        "Backdoor established in the simulated environment.",
-        "Future actions become more forgiving.",
-        `Detection: ${op.detection}/100`,
-      ]);
-    } else {
-      adjustDetection(25);
-      showDialogue([
-        "Persistence attempts are flagged in training logs.",
-        "Defensive systems heighten their response.",
-        `Detection: ${op.detection}/100`,
-      ]);
-    }
-  } else if (action === "exfiltrate") {
-    let baseChance = 30 + op.tech * 3 + op.stealth * 2;
-    if (op.intel.recon) baseChance += 5;
-    if (op.intel.scan) baseChance += 10;
-    if (op.intel.credentialEdge) baseChance += 10;
-    if (op.intel.backdoor) baseChance += 10;
-
-    baseChance -= Math.floor(op.detection / 3);
-    const roll = randomBetween(1, 100);
-
-    if (roll <= baseChance) {
-      const reward = c.baseReward + randomBetween(0, 30);
-      addCredits(reward);
-      addXP(25 * c.difficulty);
-      showDialogue([
-        "MISSION SUCCESS:",
-        "You complete the training objectives and exfiltrate simulated data.",
-        `Reward: ${reward} credits.`,
-        `Total credits: ${op.credits}.`,
-      ]);
-      gameState.contract.active = false;
-      resetIntelAndDetection();
-    } else {
-      adjustDetection(30);
-      addXP(10 * c.difficulty);
-      showDialogue([
-        "MISSION FAILED:",
-        "The training environment detects your activity before completion.",
-        `Detection: ${op.detection}/100`,
-      ]);
-      gameState.contract.active = false;
-      resetIntelAndDetection();
-    }
-  }
-
-  if (gameState.operator.detection >= 100) {
-    showDialogue([
-      "FULL DETECTION:",
-      "The simulation triggers a complete lockout.",
-      "Your detection resets for the next run.",
-    ]);
-    resetIntelAndDetection();
-    gameState.contract.active = false;
-  }
-}
-
-function handleContractConsole() {
-  if (!requireRoleAndContract(false)) return;
-  const op = gameState.operator;
-  const c = gameState.contract;
-
-  if (!gameState.contract.active) {
-    gameState.contract.active = true;
-    resetIntelAndDetection();
-    showDialogue([
-      "Training contract accepted:",
-      `"${c.name}" (Difficulty ${c.difficulty}).`,
-      "Use the terminals below to perform actions.",
-      "Finish at the Exfil terminal to try to complete the mission.",
-      `Current credits: ${op.credits}.`,
-    ]);
-  } else {
-    showDialogue([
-      "You already have an active contract.",
-      "Use action terminals in the lower area or finish at the Exfil terminal.",
-      `Detection: ${op.detection}/100`,
-    ]);
-  }
-}
-
-// ---------- Interactions ----------
-
-function handleInteraction(obj) {
-  if (!obj) {
-    showDialogue([
-      "No one or no door is close enough to interact.",
-      "Move closer and press SPACE.",
-    ]);
+function update() {
+  // transition state & overlay are handled in ui.js
+  if (transition.active) {
+    updateTransition();
     return;
   }
 
-  if (obj.type === "npc") {
-    showDialogue(obj.lines);
-  } else if (obj.type === "roleNpc") {
-    showDialogue(obj.lines);
-    setRole(obj.roleKey);
-  } else if (obj.type === "terminalContract") {
-    handleContractConsole();
-  } else if (obj.type === "terminalAction") {
-    showDialogue(obj.lines);
-    setTimeout(() => performAction(obj.action), 250);
-  } else if (obj.type === "door") {
-    if (obj.targetRoom) {
-      startRoomTransition(obj.targetRoom, obj.targetSpawn, obj.lines);
-    }
-  }
-}
-
-// ---------- Update & loop & movement ----------
-
-function update() {
-  if (transition.active) {
-    updateTransition();
+  // when in terminal, freeze world movement
+  if (terminalMode) {
     return;
   }
 
@@ -790,17 +225,24 @@ function update() {
 
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   drawMap();
   drawObjects();
-  drawPlayer();        // from player.js
-  drawHUD();
-  drawTransitionOverlay();
-  drawInteractionHint();
+  drawPlayer();          // from player.js
+  drawHUD();             // from ui.js
+  drawTransitionOverlay(); // from ui.js
+
+  if (terminalMode) {
+    drawTerminalUI();    // from terminal.js
+  } else {
+    drawInteractionHint(); // from interaction.js
+  }
+
   update();
   requestAnimationFrame(gameLoop);
 }
 
-// ---------- Input ----------
+// ---- INPUT ----
 
 window.addEventListener("keydown", (e) => {
   if (
@@ -817,12 +259,28 @@ window.addEventListener("keydown", (e) => {
 
   if (transition.active) return;
 
-  if (e.key === "e" || e.key === "E" || e.key === " ") {
+  // In ROLE HUB terminal mode: handle menu keys instead of world interaction
+  if (terminalMode) {
+    // allow closing dialogue first
+    if (
+      (e.key === "e" || e.key === "E" || e.key === " ") &&
+      gameState.dialogueVisible
+    ) {
+      hideDialogue();
+      return;
+    }
+
+    handleTerminalKey(e);  // from terminal.js
+    return;
+  }
+
+  // Normal world interaction
+  if (e.key === " " || e.key === "e" || e.key === "E") {
     if (gameState.dialogueVisible) {
       hideDialogue();
     } else {
-      const obj = getNearbyObject();
-      handleInteraction(obj);
+      const obj = getNearbyObject(); // from interaction.js
+      handleInteraction(obj);        // from interaction.js
     }
   }
 });
@@ -831,7 +289,7 @@ window.addEventListener("keyup", (e) => {
   keys[e.key] = false;
 });
 
-// ---------- Init ----------
+// ---- INIT ----
 
 function init() {
   loadRoom("lobby");
@@ -846,6 +304,7 @@ function init() {
     "Step 2: Use the contract console on the right.",
     "Step 3: Use action terminals below and finish at Exfil.",
   ]);
+
   gameLoop();
 }
 
