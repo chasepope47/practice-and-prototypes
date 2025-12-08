@@ -8,6 +8,32 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const dialogueBox = document.getElementById("dialogueBox");
 
+// ---- SPRITE ASSETS ----
+// define sprites *here* so drawObjects, drawPlayer, etc. can see it
+const sprites = {
+  tiles: new Image(),
+  player: new Image(),
+  npc: new Image(),
+  terminal: new Image(),
+};
+
+sprites.tiles.src    = "assets/tiles.png";
+sprites.player.src   = "assets/player.png";
+sprites.npc.src      = "assets/npc.png";
+sprites.terminal.src = "assets/terminal.png";
+
+sprites.player.onload = () => {
+  console.log(
+    "Player sprite loaded:",
+    sprites.player.naturalWidth,
+    sprites.player.naturalHeight
+  );
+};
+
+sprites.player.onerror = () => {
+  console.error("FAILED to load player sprite at assets/player.png");
+};
+
 // ---- ROOM LOADING ----
 function loadRoom(key, spawnOverride) {
   currentRoomKey = key;

@@ -7,36 +7,11 @@ console.log("state.js loaded");
 let keys = {};
 
 // --- WORLD STATE ---
-let worldMap = [];       // 2D array of tiles
+let worldMap = [];       // 2D array of tiles (set by loadRoom)
 let objects = [];        // interactive objects in current room
 let currentRoomKey = "lobby";
 
-// --- SPRITE ASSETS ---
-const sprites = {
-  tiles: new Image(),
-  player: new Image(),
-  npc: new Image(),
-  terminal: new Image(),
-};
-
-sprites.tiles.src = "assets/tiles.png";
-sprites.player.src = "assets/player.png";
-sprites.npc.src    = "assets/npc.png";
-sprites.terminal.src = "assets/terminal.png";
-
-sprites.player.onload = () => {
-  console.log(
-    "Player sprite loaded:",
-    sprites.player.naturalWidth,
-    sprites.player.naturalHeight
-  );
-};
-
-sprites.player.onerror = () => {
-  console.error("FAILED to load player sprite at assets/player.png");
-};
-
-// --- GAME STATE (operator, contract, etc.) ---
+// --- GAME STATE (player, operator, contract, etc.) ---
 const gameState = {
   player: {
     x: 7 * TILE_SIZE,
