@@ -580,7 +580,8 @@ function init() {
   showDialogue([
     "NetRunner Ops RPG:",
     "Arrow keys: move",
-    "E / Space: interact with NPCs & terminals.",
+    "Space: enter doors",
+    "E: interact with NPCs & terminals.",
     "",
     "Step 1: Talk to a role mentor in the central area.",
     "Step 2: Use the contract console on the right.",
