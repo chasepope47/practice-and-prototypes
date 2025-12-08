@@ -111,6 +111,14 @@ function drawHUD() {
   const op = gameState.operator;
   const roomName = ROOM_DISPLAY_NAMES[currentRoomKey] || currentRoomKey;
 
+  let currentRoomKey = "lobby";
+
+  const ROOM_DISPLAY_NAMES = {
+    lobby: "Lobby",
+    roleHub: "Role Hub",
+    ops: "Operations",
+  };
+
   ctx.save();
   ctx.fillStyle = "rgba(15,23,42,0.92)";
   ctx.fillRect(0, 0, canvas.width, 32);
