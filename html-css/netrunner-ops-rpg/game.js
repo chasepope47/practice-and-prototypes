@@ -353,7 +353,7 @@ function drawPlayer() {
     const cellHeight = sheet.naturalHeight / playerSprite.rows;
 
     // Crop a bit inside the cell to avoid borders/extra stuff
-    const insetX = 8;      // tune these if needed
+    const insetX = 6;      // tune these if needed
     const insetY = 6;
     const srcWidth = cellWidth - insetX * 2;
     const srcHeight = cellHeight - insetY * 2;
@@ -362,10 +362,12 @@ function drawPlayer() {
     const srcY = playerSprite.frameY * cellHeight + insetY;
 
     // Slightly taller dest so feet aren’t cut off
-    const destWidth = p.width;
-    const destHeight = p.height + 4;
-    const destX = p.x;
-    const destY = p.y - 4;
+    const destWidth = 24;  // character width in pixels on the map
+    const destHeight = 30;  // character height in pixels on the map
+
+    const destX = p.x + (p.width - destWidth) / 2;
+    // Feet near bottom of tile
+    const destY = p.y + (p.height - destHeight);
 
     ctx.drawImage(
       sheet,
