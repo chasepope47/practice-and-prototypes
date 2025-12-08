@@ -354,7 +354,7 @@ function drawPlayer() {
 
     // Crop a bit inside the cell to avoid borders/extra stuff
     const insetX = 6;      // tune these if needed
-    const insetY = 6;
+    const insetY = 4;
     const srcWidth = cellWidth - insetX * 2;
     const srcHeight = cellHeight - insetY * 2;
 
@@ -363,7 +363,7 @@ function drawPlayer() {
 
     // Slightly taller dest so feet aren’t cut off
     const destWidth = 24;  // character width in pixels on the map
-    const destHeight = 30;  // character height in pixels on the map
+    const destHeight = 28;  // character height in pixels on the map
 
     const destX = p.x + (p.width - destWidth) / 2;
     // Feet near bottom of tile
