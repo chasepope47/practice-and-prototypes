@@ -7,6 +7,9 @@ const TILE_SIZE = 32;
 // Display names for the HUD
 const ROOM_DISPLAY_NAMES = {
   lobby: "Lobby",
+  training: "Training Wing",
+  contracts: "Contracts Hall",
+  opsFloor: "Ops Floor",
   roleHub: "Role Hub",
   ops: "Operations",
 };

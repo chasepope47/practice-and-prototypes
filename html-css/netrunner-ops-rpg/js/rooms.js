@@ -1,14 +1,6 @@
 // rooms.js
 // Room definitions + room name display mapping
 
-// Display names for HUD
-const ROOM_DISPLAY_NAMES = {
-  lobby: "Operations Lobby",
-  training: "Training Wing",
-  contracts: "Contracts Hall",
-  ops: "Ops Room",
-};
-
 console.log("rooms.js loaded");
 
 
