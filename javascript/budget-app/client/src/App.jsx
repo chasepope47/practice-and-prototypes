@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
+console.log("Using API URL:", API_URL);
+
 export default function App() {
   const [mode, setMode] = useState("login"); // "login" or "register"
   const [email, setEmail] = useState("");
