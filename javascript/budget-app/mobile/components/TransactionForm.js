@@ -1,6 +1,7 @@
 // mobile/components/TransactionForm.js
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TextInput, Button, StyleSheet, Picker } from 'react-native';
+import { Modal, View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { useApi } from '../api/client';
 
 const DEFAULT_VALUES = {
@@ -19,7 +20,7 @@ export default function TransactionForm({ visible, onClose, onSuccess }) {
 
   useEffect(() => {
     if (visible) {
-      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+      const today = new Date().toISOString().slice(0, 10);
       setValues({ ...DEFAULT_VALUES, date: today });
       setError('');
     }
@@ -75,7 +76,6 @@ export default function TransactionForm({ visible, onClose, onSuccess }) {
             onChangeText={(text) => handleChange('amount', text)}
           />
 
-          {/* For simplicity using Picker; you can replace with any UI lib */}
           <Picker
             selectedValue={values.type}
             onValueChange={(value) => handleChange('type', value)}
@@ -111,48 +111,3 @@ export default function TransactionForm({ visible, onClose, onSuccess }) {
             <Button title="Cancel" onPress={onClose} />
             <Button
               title={saving ? 'Saving...' : 'Save'}
-              onPress={handleSubmit}
-              disabled={saving}
-            />
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
-}
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    justifyContent: 'flex-end',
-  },
-  card: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  error: {
-    color: 'red',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginBottom: 10,
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-  },
-});

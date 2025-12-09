@@ -4,7 +4,9 @@ import { View, Text, StyleSheet } from 'react-native';
 
 export default function SummaryCard({ label, value, type }) {
   const color =
-    type === 'income' ? '#16a34a' : type === 'expense' ? '#ef4444' : '#4f46e5';
+    type === 'income' ? '#16a34a' :
+    type === 'expense' ? '#ef4444' :
+    '#4f46e5';
 
   return (
     <View style={styles.card}>

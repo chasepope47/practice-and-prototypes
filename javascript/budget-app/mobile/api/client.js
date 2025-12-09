@@ -1,7 +1,6 @@
 // mobile/api/client.js
 import { API_BASE, useAuth } from '../context/AuthContext';
 
-// Hook-based helpers (for components)
 export function useApi() {
   const { token } = useAuth();
 
@@ -18,8 +17,7 @@ export function useApi() {
     });
     const data = await res.json();
     if (!res.ok) {
-      const msg = data?.error || 'Request failed';
-      throw new Error(msg);
+      throw new Error(data?.error || 'Request failed');
     }
     return data;
   };
@@ -35,8 +33,7 @@ export function useApi() {
     });
     const data = await res.json();
     if (!res.ok) {
-      const msg = data?.error || 'Request failed';
-      throw new Error(msg);
+      throw new Error(data?.error || 'Request failed');
     }
     return data;
   };

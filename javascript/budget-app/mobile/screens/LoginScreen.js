@@ -1,9 +1,9 @@
 // mobile/screens/LoginScreen.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,7 +44,17 @@ export default function LoginScreen() {
         onChangeText={setPassword}
       />
 
-      <Button title={loading ? 'Logging in...' : 'Log In'} onPress={handleLogin} disabled={loading} />
+      <Button
+        title={loading ? 'Logging in...' : 'Log In'}
+        onPress={handleLogin}
+        disabled={loading}
+      />
+
+      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+        <Text style={styles.link}>
+          Don&apos;t have an account? Register
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -73,5 +83,10 @@ const styles = StyleSheet.create({
     color: 'red',
     marginBottom: 12,
     textAlign: 'center',
+  },
+  link: {
+    marginTop: 16,
+    textAlign: 'center',
+    color: '#2563eb',
   },
 });
