@@ -43,8 +43,8 @@ export default function App() {
       localStorage.setItem("authUser", JSON.stringify(data.user));
       setStatus(`${mode === "login" ? "Logged in" : "Registered"} successfully`);
     } catch (err) {
-      console.error(err);
-      setStatus("Network error");
+      console.error("Auth request failed", err);
+      setStatus("Network error: ${err.message || err}");
     }
   }
 
@@ -72,8 +72,8 @@ export default function App() {
 
       setStatus(`Protected route OK. User: ${data.user.email} (id: ${data.user.id})`);
     } catch (err) {
-      console.error(err);
-      setStatus("Network error calling /api/me");
+      console.error("Fetch /api/me failed", err);
+      setStatus("Network error calling /api/me: ${err.message || err}");
     }
   }
 
