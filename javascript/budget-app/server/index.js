@@ -46,6 +46,11 @@ function authRequired(req, res, next) {
   }
 }
 
+// --- PROTECTED TEST ROUTE ---
+app.get("/api/me", authRequired, (req, res) => {
+  res.json({ user: req.user }); // { id, email }
+});
+
 // --- REGISTER ---
 app.post("/api/auth/register", async (req, res) => {
   const { email, password } = req.body;
