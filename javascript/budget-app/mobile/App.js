@@ -1,9 +1,11 @@
 // mobile/App.js
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 import LoginScreen from './screens/LoginScreen';
 import DashboardScreen from './screens/DashboardScreen';
@@ -23,18 +25,8 @@ function MainTabs() {
   );
 }
 
-export default function App() {
-  const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(null);
-
-  // simulate reading token from storage
-  useEffect(() => {
-    const init = async () => {
-      // later: read from AsyncStorage
-      setLoading(false);
-    };
-    init();
-  }, []);
+function RootNavigator() {
+  const { token, loading } = useAuth();
 
   if (loading) {
     return (
@@ -45,18 +37,22 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {token ? (
-          <Stack.Screen name="Main">
-            {() => <MainTabs />}
-          </Stack.Screen>
-        ) : (
-          <Stack.Screen name="Login">
-            {(props) => <LoginScreen {...props} setToken={setToken} />}
-          </Stack.Screen>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {token ? (
+        <Stack.Screen name="Main" component={MainTabs} />
+      ) : (
+        <Stack.Screen name="Login" component={LoginScreen} />
+      )}
+    </Stack.Navigator>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <NavigationContainer>
+        <RootNavigator />
+      </NavigationContainer>
+    </AuthProvider>
   );
 }

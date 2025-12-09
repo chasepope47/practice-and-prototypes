@@ -1,33 +1,24 @@
 // mobile/screens/LoginScreen.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { useAuth } from '../context/AuthContext';
 
-const API_BASE = 'http://localhost:4000'; // change to your dev IP on device
-
-export default function LoginScreen({ setToken }) {
+export default function LoginScreen() {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     try {
       setError('');
-      const res = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || 'Login failed');
-        return;
-      }
-
-      setToken(data.token);
-      // later: save data.token with AsyncStorage
+      setLoading(true);
+      await login(email, password);
     } catch (e) {
-      setError('Network error');
+      setError(e.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,6 +32,7 @@ export default function LoginScreen({ setToken }) {
         style={styles.input}
         placeholder="Email"
         autoCapitalize="none"
+        keyboardType="email-address"
         value={email}
         onChangeText={setEmail}
       />
@@ -52,7 +44,7 @@ export default function LoginScreen({ setToken }) {
         onChangeText={setPassword}
       />
 
-      <Button title="Log In" onPress={handleLogin} />
+      <Button title={loading ? 'Logging in...' : 'Log In'} onPress={handleLogin} disabled={loading} />
     </View>
   );
 }

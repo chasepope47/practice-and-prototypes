@@ -1,30 +1,58 @@
 // mobile/screens/TransactionsScreen.js
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, Button } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, Button, RefreshControl } from 'react-native';
 import TransactionItem from '../components/TransactionItem';
-
-const dummyData = [
-  { id: '1', date: '2025-12-08', type: 'expense', category: 'Food', note: 'Taco Bell', amount: -12.5 },
-  { id: '2', date: '2025-12-07', type: 'income', category: 'Salary', note: 'Paycheck', amount: 1500 },
-];
+import TransactionForm from '../components/TransactionForm';
+import { useApi } from '../api/client';
 
 export default function TransactionsScreen() {
-  const handleAdd = () => {
-    // later: open modal with TransactionForm
+  const { get } = useApi();
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+
+  const load = async () => {
+    try {
+      setLoading(true);
+      const data = await get('/transactions');
+      setTransactions(data);
+    } catch (e) {
+      console.log('Transactions load error', e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const handleAddSuccess = (created) => {
+    // Prepend the new transaction
+    setTransactions((prev) => [created, ...prev]);
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={styles.title}>Transactions</Text>
-        <Button title="+ Add" onPress={handleAdd} />
+        <Button title="+ Add" onPress={() => setShowForm(true)} />
       </View>
 
       <FlatList
-        data={dummyData}
-        keyExtractor={(item) => item.id}
+        data={transactions}
+        keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => <TransactionItem transaction={item} />}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={load} />
+        }
+      />
+
+      <TransactionForm
+        visible={showForm}
+        onClose={() => setShowForm(false)}
+        onSuccess={handleAddSuccess}
       />
     </View>
   );
